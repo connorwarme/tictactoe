@@ -1,5 +1,4 @@
-let selection = '';
-const gameBoard = () => {
+const gameBoard = (() => {
     const gridContainer = document.querySelector('div.container');
     const grid = () => {
         for (i=0; i<9; i++) {
@@ -9,7 +8,8 @@ const gameBoard = () => {
             gridContainer.appendChild(square);
         }
     }
-    let board = [1, 2, 2, 0, 1, 0, 1, 2, 0];
+    let board = [0, 0, 0, 0, 0, 0, 0, 0, 0];
+    let selection = '';
     const render = (array) => {
 // take array and display value in each div of grid 
     const gridArray = Array.from(gridContainer.getElementsByClassName('square'));
@@ -27,46 +27,71 @@ const gameBoard = () => {
             gridArray[index].addEventListener('click', e => {
                 selection = e.target.id;
                 console.log(selection);
+                game.crossCheck(selection);
+                game.turn(pablo, pancho, selection);
             })
         })
-        return { selection };
     }
-    return { grid, render, squareListeners, selection, board };
-}
-
+    return { grid, render, board, gridContainer, squareListeners };
+})();
 const playerFactory = (name, icon) => {
     const declareIcon = () => console.log(`you've chosen ${icon}`);
     const welcome = () => console.log(`welcome ${name}`);
     const pickSquare = (selection) => {
-        board[selection] = count;
+        let playerChoice = document.getElementById(`${selection}`);
+        console.log(playerChoice);
+        console.log(icon);
+        playerChoice.textContent = `${icon}`;
     }
     return { name, icon, declareIcon, welcome, pickSquare };
 }
 const game = (() => {
-    const selection = () => {
-// take argument, run check if play is valid, mark selection on page
+    let counter = 1;
+    const turn = (x, y, selection) => {
+        if (counter % 2 === 0) {
+            x.pickSquare(selection);
+            gameBoard.board[selection] = 1;
+        } else if (counter % 2 === 1) {
+            y.pickSquare(selection);
+            gameBoard.board[selection] = 2;
+        } else {
+            console.log('houston, we have a problem');
+        }
+        counter++;
     }
-    const crossCheck = () => {
-// take argument and see if square is already taken or not
-// if unavailable, deny + start turn again
-// if available, mark selection
+// // take argument, run check if play is valid, mark selection on page
+//     }
+    const crossCheck = (selection) => {
+        if (!(gameBoard.board[selection] === 0)) {
+            alert('that square is taken, choose another!')
+            return false;
+        } else {
+            return true;
+        }
     }
-    const winCheck = () => {
-// evaluate board, checking for 3 in a row
-// what's best way to check??
-    }
-    const declaration = () => {
-// either declare winner or announce tie
-    }
-    const restart = () => {
-// clear grid, clear board array 
-//does this go here or under gameBoard?       
-    }
-    const turn = () => {
-// run all the functions..?        
-    }
+// // take argument and see if square is already taken or not
+// // if unavailable, deny + start turn again
+// // if available, mark selection
+//     }
+//     const winCheck = () => {
+// // evaluate board, checking for 3 in a row
+// // what's best way to check??
+//     }
+//     const declaration = () => {
+// // either declare winner or announce tie
+//     }
+//     const restart = () => {
+// // clear grid, clear board array 
+// //does this go here or under gameBoard?       
+//     }
+//     // const turn = () => {
+// // run all the functions..?        
+//     }
+    return { turn, crossCheck };
 })();
-let dude = gameBoard();
 let pablo = playerFactory('pablo', 'X');
-dude.grid();
-dude.squareListeners();
+let pancho = playerFactory('pancho', 'O');
+console.log(gameBoard.board);
+gameBoard.grid();
+gameBoard.render(gameBoard.board);
+gameBoard.squareListeners();
