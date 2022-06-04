@@ -34,7 +34,7 @@ const gameBoard = (() => {
     // }
     const clickFunction = (e) => {
         selection = e.target.id;
-        game.turn(pablo, pancho, selection);
+        game.turnAI(pablo, AI.computerPlayer, selection);
     }
     const addListeners = () => {
         const gridArray = Array.from(gridContainer.getElementsByClassName('square'));
@@ -42,7 +42,13 @@ const gameBoard = (() => {
             cell.addEventListener('click', clickFunction, { once : true })
         })
     }
-    return { grid, render, board, gridContainer, addListeners };
+    const removeListeners = () => {
+        const gridArray = Array.from(gridContainer.getElementsByClassName('square'));
+        gridArray.forEach(square => {
+            square.removeEventListener('click', clickFunction, { once : true })
+        })
+    }
+    return { grid, render, board, gridContainer, addListeners, removeListeners };
 })();
 const playerFactory = (name, icon) => {
     const declareIcon = () => console.log(`you've chosen ${icon}`);
@@ -70,6 +76,18 @@ const game = (() => {
             console.log('houston, we have a problem');
         }
         counter++;
+    }
+    const turnAI = (x, y, selection) => {
+        if (counter % 2 === 0) {
+            x.pickSquare(selection);
+            gameBoard.board[selection] = 1;
+            round(x);
+        } else if (counter % 2 === 1) {
+            let selection = AI.findPlay();
+            y.pickSquare(selection);
+            gameBoard.board[selection] = 2;
+            round(y);
+        }
     }
 // // take argument, run check if play is valid, mark selection on page
 //     }
@@ -106,18 +124,25 @@ const game = (() => {
             })
         })
     }
-    const round = (z) => {
-        if (winCheck(z)) {
-            endGame(z);
-        }
-    }
-    const endGame = (player) => {
-        if (!(squareArray.every(square => squareArray[square].textContent == ''))) {
-            console.log('draw');
+    const round = (player) => {
+        let board = gameBoard.board;
+        if (winCheck(player.name)) {
+            console.log(`${player.name} wins!`);
+            gameBoard.removeListeners();
+        } else if (board.every(isAboveZero)) {
+            console.log(`we have a tie!`);
         } else {
-            console.log(`${player} wins!`)
+            console.log('still going!');
         }
     }
+    const isAboveZero = (currentValue) => currentValue > 0;
+    // const endGame = (player) => {
+    //     if (!(squareArray.every(square => squareArray[square].textContent == ''))) {
+    //         console.log('draw');
+    //     } else {
+    //         console.log(`${player} wins!`)
+    //     }
+    // }
     // const declaration = () => {
 // // either declare winner or announce tie
 //     }
@@ -128,7 +153,31 @@ const game = (() => {
 //     // const turn = () => {
 // // run all the functions..?        
 //     }
-    return { turn, winCheck };
+    return { turn, turnAI, winCheck };
+})();
+const AI = (() => {
+    const computerPlayer = {
+        name: 'computer',
+        icon: 'O',
+        pickSquare(selection) {
+            let computerChoice = document.getElementById(`${selection}`);
+            computerChoice.classList.add('computer');
+            computerChoice.textContent = `O`;
+        }
+    }
+    const generateNumber = () => {
+        const number = Math.round((Math.random()*90) / 10);
+        return number;
+    }
+    const findPlay = () => {
+        let number = generateNumber()
+        if (gameBoard.board[number] > 0) {
+            findPlay();
+        } else {
+            return number;
+        }
+    }
+    return { computerPlayer, findPlay }
 })();
 let pablo = playerFactory('pablo', 'X');
 let pancho = playerFactory('pancho', 'O');
