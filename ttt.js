@@ -34,7 +34,7 @@ const gameBoard = (() => {
     // }
     const clickFunction = (e) => {
         selection = e.target.id;
-        game.turnAI(pablo, AI.computerPlayer, selection);
+        game.turnPlayer(pablo, selection);
     }
     const addListeners = () => {
         const gridArray = Array.from(gridContainer.getElementsByClassName('square'));
@@ -77,17 +77,19 @@ const game = (() => {
         }
         counter++;
     }
-    const turnAI = (x, y, selection) => {
-        if (counter % 2 === 0) {
-            x.pickSquare(selection);
-            gameBoard.board[selection] = 1;
-            round(x);
-        } else if (counter % 2 === 1) {
-            let selection = AI.findPlay();
-            y.pickSquare(selection);
+    const turnPlayer = (x, selection) => {
+        x.pickSquare(selection);
+        gameBoard.board[selection] = 1;
+        round(x);
+    }
+    const turnAI = () => {
+        let selection = AI.findPlay();
+        console.log(selection);
+            let computer = AI.computerPlayer;
+            computer.pickSquare(selection);
             gameBoard.board[selection] = 2;
-            round(y);
-        }
+            round(computer);
+        
     }
 // // take argument, run check if play is valid, mark selection on page
 //     }
@@ -153,7 +155,7 @@ const game = (() => {
 //     // const turn = () => {
 // // run all the functions..?        
 //     }
-    return { turn, turnAI, winCheck };
+    return { turn, turnPlayer, turnAI, winCheck };
 })();
 const AI = (() => {
     const computerPlayer = {
@@ -166,13 +168,18 @@ const AI = (() => {
         }
     }
     const generateNumber = () => {
-        const number = Math.round((Math.random()*90) / 10);
+        const number = Math.floor((Math.random()*90) / 10);
+        if (isNaN(number)) {
+            generateNumber();
+        } else {
         return number;
+        }
     }
     const findPlay = () => {
-        let number = generateNumber()
+        let number = generateNumber();
         if (gameBoard.board[number] > 0) {
-            findPlay();
+            console.log('no bueno');
+            game.turnAI();
         } else {
             return number;
         }
