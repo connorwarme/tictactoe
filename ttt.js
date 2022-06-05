@@ -85,11 +85,14 @@ const game = (() => {
     const turnAI = () => {
         let selection = AI.findPlay();
         console.log(selection);
+        if (selection !== undefined) {
             let computer = AI.computerPlayer;
             computer.pickSquare(selection);
             gameBoard.board[selection] = 2;
             round(computer);
-        
+        } else {
+            console.log('she undefined');
+        }
     }
 // // take argument, run check if play is valid, mark selection on page
 //     }
@@ -169,20 +172,19 @@ const AI = (() => {
     }
     const generateNumber = () => {
         const number = Math.floor((Math.random()*90) / 10);
-        if (isNaN(number)) {
-            generateNumber();
-        } else {
+        // if (isNaN(number)) {
+        //     generateNumber();
+        // } else {
         return number;
-        }
+        // }
     }
     const findPlay = () => {
         let number = generateNumber();
-        if (gameBoard.board[number] > 0) {
-            console.log('no bueno');
-            game.turnAI();
-        } else {
-            return number;
+        while (gameBoard.board[number] > 0) {
+            number = generateNumber();
+            console.log('trying for a new number');
         }
+        return number;
     }
     return { computerPlayer, findPlay }
 })();
