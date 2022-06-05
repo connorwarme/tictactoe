@@ -4,7 +4,7 @@
     grid-template-rows: repeat(3, 150px);
     border: 1px solid black;
 }
-.square {
+.cell {
     border: 1px solid black;
     font-size: 48px;
     display: flex;
