@@ -205,9 +205,140 @@ grid.forEach(index => {
     index.forEach(i => {
         const cell = document.createElement('div');
         cell.classList.add('cell');
-        cell.setAttribute('data-value', `[${i}, ${z}]`);
+        cell.setAttribute('data-value', `${i}${z}`);
         gridContainer.appendChild(cell);
     })
 })
 const cellArray = Array.from(document.querySelectorAll('div.cell'));
 console.log(cellArray);
+let selection;
+const clickFunction = (e) => {
+    selection = Array.from(e.target.getAttribute('data-value'));
+    e.target.textContent = 'X';
+    evaluateMove(selection, "Player");
+    console.log(selection);
+}
+cellArray.forEach(cell => {
+    cell.addEventListener('click', clickFunction, { once : true})
+})
+let rowsContainer = [0, 0, 0];
+let colsContainer = [0, 0, 0];
+let diagContainer = 0;
+let oppDiagContainer = 0;
+const evaluateMove = (selection, player) => {
+    let x = Number(selection[0]);
+    let y = Number(selection[1]);
+    rowsContainer[y] +=1;
+    if (rowsContainer[y] == 3) {
+        console.log(`${player} has won via rows!`);
+    }
+    colsContainer[x] +=1;
+    if (colsContainer[x] == 3) {
+        console.log(`${player} has won via cols!`);
+    }
+    if (x == y) {
+        // diagContainer[x] +=1;
+        // let totalSum = 0;
+        // for (i=0; i<diagContainer.length; i++) {
+        //     totalSum += diagContainer[i];
+        // }
+        // if (totalSum == 3) {
+        //     console.log('Player has won via diags!');
+        // }
+        diagContainer += 1;
+        if (diagContainer == 3) {
+            console.log(`${player} has won via diags!`)
+        }
+    }
+    if ((x + y + 1) == 3) {
+        oppDiagContainer += 1;
+        if (oppDiagContainer == 3) {
+            console.log(`${player} has won via opp diags!`);
+        }
+    }
+}
+const minimax = function minimax(position, depth, maximizingPlayer) {
+    let eval;
+    if (depth == 0) /*OR game over in this position*/ {
+        return position;
+    }
+    if (maximizingPlayer) {
+        let maxEval = -Infinity;
+        for (let child in position.children) {
+            eval = minimax(child, depth - 1, false);
+            maxEval = Math.max(maxEval, eval);
+            return maxEval;
+        }
+    }
+    else {
+        let minEval = +Infinity;
+        for(let child in position.children) {
+            eval = minimax(child, depth - 1, true);
+            minEval = Math.min(minEval, eval);
+            return minEval;
+        }
+    }
+}
+let rowsAI = [0, 0, 0];
+let colsAI = [0, 0, 0];
+let diagAI = 0;
+let oppDiagAI = 0;
+const evaluateMoveAI = (selection) => {
+    let x = Number(selection[0]);
+    let y = Number(selection[1]);
+    rowsAI[y] +=1;
+    if (rowsAI[y] == 3) {
+        console.log('Computer has won via rows!');
+    }
+    colsAI[x] +=1;
+    if (colsAI[x] == 3) {
+        console.log('Computer has won via cols!');
+    }
+    if (x == y) {
+        diagAI += 1;
+        if (diagAI == 3) {
+            console.log('Computer has won via diags!')
+        }
+    }
+    if ((x + y + 1) == 3) {
+        oppDiagAI += 1;
+        if (oppDiagAI == 3) {
+            console.log('Computer has won via opp diags!');
+        }
+    }
+}
+const makeMoveAI = () => {
+    let selection = [generateNumber(), generateNumber()];
+    for (i=0; i<cellArray.length; i++) {
+        let data = Array.from(cellArray[i].getAttribute('data-value'));
+        if (selection[0] == Number(data[0]) && selection[1] == Number(data[1])) {
+            cellArray[i].textContent = 'O';
+            evaluateMoveAI(selection);
+            break;
+        }
+    }
+}
+const generateNumber = () => {
+    const number = Math.floor((Math.random()*30) / 10);
+    if (isNaN(number)) {
+        generateNumber();
+        } else {
+        return number;
+        }
+    }
+const score = (x, y, game) => {
+    if (game(x)) {
+        return 1;
+    } else if (game(y)) {
+        return -1;
+    } else {
+        return 0;
+    }
+}
+const game = (player) => {
+    //make a move
+    //check for win
+    //check for draw
+    //
+
+}
