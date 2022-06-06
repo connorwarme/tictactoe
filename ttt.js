@@ -200,20 +200,26 @@ for (i=0; i<3; i++) {
 grid.forEach(index => grid[index] = [0, 1, 2]);
 console.log(grid);
 let z = -1;
+let y = 0;
 grid.forEach(index => {
     z++;
     index.forEach(i => {
         const cell = document.createElement('div');
         cell.classList.add('cell');
         cell.setAttribute('data-value', `${i}${z}`);
+        cell.setAttribute('id', `${y}`);
         gridContainer.appendChild(cell);
+        y++;
     })
 })
 const cellArray = Array.from(document.querySelectorAll('div.cell'));
 console.log(cellArray);
 let selection;
+let id;
 const clickFunction = (e) => {
     selection = Array.from(e.target.getAttribute('data-value'));
+    id = e.target.getAttribute('id');
+    board[id] = 1;
     e.target.textContent = 'X';
     evaluateMove(selection, "Player");
     console.log(selection);
@@ -225,59 +231,90 @@ let rowsContainer = [0, 0, 0];
 let colsContainer = [0, 0, 0];
 let diagContainer = 0;
 let oppDiagContainer = 0;
-const evaluateMove = (selection, player) => {
+const evaluateMove = (selection) => {
+    let player = 'Amos';
+    let cell = turnSelectionIntoMove(selection);
+    board[cell] = 1;
     let x = Number(selection[0]);
     let y = Number(selection[1]);
+    let win = false;
     rowsContainer[y] +=1;
     if (rowsContainer[y] == 3) {
         console.log(`${player} has won via rows!`);
+        win = true;
     }
     colsContainer[x] +=1;
     if (colsContainer[x] == 3) {
         console.log(`${player} has won via cols!`);
+        win = true;
     }
     if (x == y) {
-        // diagContainer[x] +=1;
-        // let totalSum = 0;
-        // for (i=0; i<diagContainer.length; i++) {
-        //     totalSum += diagContainer[i];
-        // }
-        // if (totalSum == 3) {
-        //     console.log('Player has won via diags!');
-        // }
         diagContainer += 1;
         if (diagContainer == 3) {
-            console.log(`${player} has won via diags!`)
+            console.log(`${player} has won via diags!`);
+            win = true;
         }
     }
     if ((x + y + 1) == 3) {
         oppDiagContainer += 1;
         if (oppDiagContainer == 3) {
             console.log(`${player} has won via opp diags!`);
+            win = true;
         }
     }
+    return win;
 }
 const minimax = function minimax(position, depth, maximizingPlayer) {
     let eval;
-    if (depth == 0) /*OR game over in this position*/ {
+    let selection = turnMoveIntoSelection(position);
+    if ((depth == 0) || (terminalState(selection) == true)) {
         return position;
     }
     if (maximizingPlayer) {
         let maxEval = -Infinity;
-        for (let child in position.children) {
-            eval = minimax(child, depth - 1, false);
-            maxEval = Math.max(maxEval, eval);
-            return maxEval;
+        for (i=0; i<board.length; i++) {
+            if (board[i] == 0) {
+                let position = board[i];
+                let selection = turnMoveIntoSelection(position);
+                evaluateMoveAI(selection);
+                eval = minimax(child, depth - 1, false);
+                maxEval = Math.max(maxEval, eval);
+                return maxEval;
+                // undo the move?
+            }
         }
     }
     else {
         let minEval = +Infinity;
-        for(let child in position.children) {
-            eval = minimax(child, depth - 1, true);
-            minEval = Math.min(minEval, eval);
-            return minEval;
+        for (i=0; i<board.length; i++) {
+            if (board[i] == 0) {
+                let position = board[i];
+                let selection = turnMoveIntoSelection(position);
+                evaluateMove(selection);
+                eval = minimax(child, depth - 1, true);
+                minEval = Math.min(minEval, eval);
+                return minEval;
+                // undo the move?
+            }
         }
     }
+}
+const bestMove = () => {
+    let maxEval = -Infinity;
+    let bestPosition;
+    for (i=0; i<board.length; i++) {
+        if (board[i] == 0) {
+            evaluateMoveAI(turnMoveIntoSelection(i));
+            let moveEval = minimax(board, 0, true);
+            board[i] = 0;
+            if (moveEval > maxEval) {
+                maxEval = moveEval;
+                bestPosition = i;
+            }
+        }
+    }
+    console.log(bestPosition);
+    return bestPosition;
 }
 let rowsAI = [0, 0, 0];
 let colsAI = [0, 0, 0];
@@ -286,59 +323,121 @@ let oppDiagAI = 0;
 const evaluateMoveAI = (selection) => {
     let x = Number(selection[0]);
     let y = Number(selection[1]);
+    let cell = turnSelectionIntoMove(selection);
+    board[cell] = 2;
+    let win = false;
     rowsAI[y] +=1;
     if (rowsAI[y] == 3) {
         console.log('Computer has won via rows!');
+        return win = true;
     }
     colsAI[x] +=1;
     if (colsAI[x] == 3) {
         console.log('Computer has won via cols!');
+        return console.log(win = true);
     }
     if (x == y) {
         diagAI += 1;
         if (diagAI == 3) {
             console.log('Computer has won via diags!')
+            return win = true;
         }
     }
     if ((x + y + 1) == 3) {
         oppDiagAI += 1;
         if (oppDiagAI == 3) {
             console.log('Computer has won via opp diags!');
+            return win = true;
         }
     }
 }
+const findPlayAI = () => {
+    let number = generateNumber();
+    console.log(number);
+    while (board[number] > 0) {
+        number = generateNumber();
+        console.log('trying for a new number');
+    }
+    return number;
+}
 const makeMoveAI = () => {
-    let selection = [generateNumber(), generateNumber()];
+    let number = findPlayAI();
     for (i=0; i<cellArray.length; i++) {
-        let data = Array.from(cellArray[i].getAttribute('data-value'));
-        if (selection[0] == Number(data[0]) && selection[1] == Number(data[1])) {
+        if (number == cellArray[i].getAttribute('id')) {
             cellArray[i].textContent = 'O';
+            board[i] = 2;
+            let data = Array.from(cellArray[i].getAttribute('data-value'));
+            let selection = [Number(data[0]), Number(data[1])];
             evaluateMoveAI(selection);
             break;
         }
     }
 }
+const makeMovePlayer = () => {
+
+}
 const generateNumber = () => {
-    const number = Math.floor((Math.random()*30) / 10);
+    const number = Math.floor((Math.random()*90) / 10);
     if (isNaN(number)) {
         generateNumber();
         } else {
         return number;
         }
     }
-const score = (x, y, game) => {
-    if (game(x)) {
-        return 1;
-    } else if (game(y)) {
-        return -1;
-    } else {
-        return 0;
-    }
-}
 const game = (player) => {
     //make a move
     //check for win
     //check for draw
     //
 
+}
+const board = [0, 0, 0, 0, 0, 0, 0, 0, 0];
+//problem with terminal - evaluateMove needs selection, and is specific to player (not AI)
+// and both of those use same input
+const terminalState = (selection) => {
+    let terminal = false;
+    if (evaluateMoveAI(selection)) {
+        terminal = true;
+        // return 1;
+    }
+    else if (evaluateMove(selection)) {
+        terminal = true;
+        // return -1;
+    } else if (checkDraw()) {
+        terminal = true;
+        // return 0;
+    }
+    console.log(terminal);
+    return terminal;
+}
+const checkDraw = () => {
+    for (i=0; i<board.length; i++) {
+        if (board[i] > 0) {
+            continue;
+        } else {
+            return false;
+        }
+    }
+    return true;
+}
+const checkPossibleMoves = () => {
+    let possibleMoves = [];
+    for (i=0; i<board.length; i++) {
+        if (board[i] == 0) {
+            possibleMoves.push(i);
+        }
+    }
+    return possibleMoves;
+}
+const turnMoveIntoSelection = (move) => {
+    console.log(move);
+    let x = Array.from(cellArray[move].getAttribute('data-value'));
+    let selection = [Number(x[0]), Number(x[1])];
+    return selection;
+}
+const turnSelectionIntoMove = (selection) => {
+    for (i=0; i<cellArray.length; i++) {
+        if (selection == cellArray[i].getAttribute('data-value'))
+        return [i];
+    }
 }
