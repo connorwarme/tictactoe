@@ -237,38 +237,37 @@ const evaluateMove = (selection) => {
     board[cell] = 1;
     let x = Number(selection[0]);
     let y = Number(selection[1]);
-    let win = false;
     rowsContainer[y] +=1;
     if (rowsContainer[y] == 3) {
         console.log(`${player} has won via rows!`);
-        win = true;
+        win.player = 1;
     }
     colsContainer[x] +=1;
     if (colsContainer[x] == 3) {
         console.log(`${player} has won via cols!`);
-        win = true;
+        win.player = 1;
     }
     if (x == y) {
         diagContainer += 1;
         if (diagContainer == 3) {
             console.log(`${player} has won via diags!`);
-            win = true;
+            win.player = 1;
         }
     }
     if ((x + y + 1) == 3) {
         oppDiagContainer += 1;
         if (oppDiagContainer == 3) {
             console.log(`${player} has won via opp diags!`);
-            win = true;
+            win.player = 1;
         }
     }
-    return win;
 }
 const minimax = function minimax(position, depth, maximizingPlayer) {
     let eval;
-    let selection = turnMoveIntoSelection(position);
-    if ((depth == 0) || (terminalState(selection) == true)) {
-        return position;
+    // let selection = turnMoveIntoSelection(position);
+    let score = terminalState();
+    if ((depth == 0) || (score != false)) {
+        return score;
     }
     if (maximizingPlayer) {
         let maxEval = -Infinity;
@@ -276,11 +275,12 @@ const minimax = function minimax(position, depth, maximizingPlayer) {
             if (board[i] == 0) {
                 let position = board[i];
                 let selection = turnMoveIntoSelection(position);
+                board[i] = 2;
                 evaluateMoveAI(selection);
-                eval = minimax(child, depth - 1, false);
+                eval = minimax(position, depth - 1, false);
                 maxEval = Math.max(maxEval, eval);
+                board[i] = 0;
                 return maxEval;
-                // undo the move?
             }
         }
     }
@@ -290,11 +290,12 @@ const minimax = function minimax(position, depth, maximizingPlayer) {
             if (board[i] == 0) {
                 let position = board[i];
                 let selection = turnMoveIntoSelection(position);
+                board[i] = 1;
                 evaluateMove(selection);
-                eval = minimax(child, depth - 1, true);
+                eval = minimax(position, depth - 1, true);
                 minEval = Math.min(minEval, eval);
+                board[i] = 0;
                 return minEval;
-                // undo the move?
             }
         }
     }
@@ -304,8 +305,14 @@ const bestMove = () => {
     let bestPosition;
     for (i=0; i<board.length; i++) {
         if (board[i] == 0) {
-            evaluateMoveAI(turnMoveIntoSelection(i));
-            let moveEval = minimax(board, 0, true);
+            console.log(i);
+            let data = Array.from(cellArray[i].getAttribute('data-value'));
+            let a = Number(data[0]); 
+            let b = Number(data[1]);
+            let selection = [a, b]
+            console.log(selection);
+            evaluateMoveAI(selection);
+            let moveEval = minimax(board, 0, false);
             board[i] = 0;
             if (moveEval > maxEval) {
                 maxEval = moveEval;
@@ -324,30 +331,28 @@ const evaluateMoveAI = (selection) => {
     let x = Number(selection[0]);
     let y = Number(selection[1]);
     let cell = turnSelectionIntoMove(selection);
-    board[cell] = 2;
-    let win = false;
     rowsAI[y] +=1;
     if (rowsAI[y] == 3) {
         console.log('Computer has won via rows!');
-        return win = true;
-    }
+        win.computer = 1;
+        }
     colsAI[x] +=1;
     if (colsAI[x] == 3) {
         console.log('Computer has won via cols!');
-        return console.log(win = true);
+        win.computer = 1;
     }
     if (x == y) {
         diagAI += 1;
         if (diagAI == 3) {
             console.log('Computer has won via diags!')
-            return win = true;
+            win.computer = 1;
         }
     }
     if ((x + y + 1) == 3) {
         oppDiagAI += 1;
         if (oppDiagAI == 3) {
             console.log('Computer has won via opp diags!');
-            return win = true;
+            win.computer = 1;
         }
     }
 }
@@ -394,20 +399,16 @@ const game = (player) => {
 const board = [0, 0, 0, 0, 0, 0, 0, 0, 0];
 //problem with terminal - evaluateMove needs selection, and is specific to player (not AI)
 // and both of those use same input
-const terminalState = (selection) => {
+const terminalState = () => {
     let terminal = false;
-    if (evaluateMoveAI(selection)) {
-        terminal = true;
-        // return 1;
+    if (win.computer == 1) {
+        return 1;
     }
-    else if (evaluateMove(selection)) {
-        terminal = true;
-        // return -1;
+    else if (win.player == 1) {
+        return -1;
     } else if (checkDraw()) {
-        terminal = true;
-        // return 0;
+        return 0;
     }
-    console.log(terminal);
     return terminal;
 }
 const checkDraw = () => {
@@ -421,10 +422,10 @@ const checkDraw = () => {
     return true;
 }
 const checkPossibleMoves = () => {
-    let possibleMoves = [];
+    let possibleMoves = false;
     for (i=0; i<board.length; i++) {
         if (board[i] == 0) {
-            possibleMoves.push(i);
+            possibleMoves = true;
         }
     }
     return possibleMoves;
@@ -440,4 +441,8 @@ const turnSelectionIntoMove = (selection) => {
         if (selection == cellArray[i].getAttribute('data-value'))
         return [i];
     }
+}
+let win = {
+    player: 0,
+    computer: 0
 }
