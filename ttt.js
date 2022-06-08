@@ -262,9 +262,8 @@ const evaluateMove = (selection) => {
         }
     }
 }
-const minimax = function minimax(position, depth, maximizingPlayer) {
+const minimax = function minimax(boardTTT, depth, maximizingPlayer) {
     let eval;
-    // let selection = turnMoveIntoSelection(position);
     let score = terminalState();
     if ((depth == 0) || (score != false)) {
         return score;
@@ -422,10 +421,10 @@ const checkDraw = () => {
     return true;
 }
 const checkPossibleMoves = () => {
-    let possibleMoves = false;
+    let possibleMoves = [];
     for (i=0; i<board.length; i++) {
         if (board[i] == 0) {
-            possibleMoves = true;
+            possibleMoves.push(i);
         }
     }
     return possibleMoves;
@@ -437,9 +436,20 @@ const turnMoveIntoSelection = (move) => {
     return selection;
 }
 const turnSelectionIntoMove = (selection) => {
+    let selectionArray = [`${selection[0]}`, `${selection[1]}`];
+    arrayAttributes = [];
     for (i=0; i<cellArray.length; i++) {
-        if (selection == cellArray[i].getAttribute('data-value'))
-        return [i];
+        arrayAttributes.push(Array.from(cellArray[i].getAttribute('data-value')));
+    }
+    for (i=0; i<arrayAttributes.length; i++) {
+        if (selectionArray[0] == arrayAttributes[i][0]) {
+            if (selectionArray[1] == arrayAttributes[i][1]) {
+            return i;
+            }
+            else {
+                continue;
+            }
+        }
     }
 }
 let win = {
