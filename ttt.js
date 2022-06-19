@@ -275,10 +275,8 @@ const winCheck = (gameBoard, name) => {
     ]
     return winningCombos.some(combination => {
         return combination.every(index => {
-            if (gameBoard[index] === (name.icon)) {
-                return index;
-            }
-        })
+            return gameBoard[index] === (name.icon)
+            })
     })
 }
 
@@ -344,11 +342,72 @@ function minimax(gameBoard, player) {
     }
     return moves[bestMove];
 }
+// let max = 1000;
+// let min = -1000;
+// function maximin(gameBoard, depth, player, alpha, beta) {
+//     const possibleMoves = checkPossibleMoves(gameBoard);
+//     if (winning(gameBoard, playerH)) {
+//         return {score: -1};
+//     } else if (winning(gameBoard, playerAI)) {
+//         return {score: 1};
+//     } else if (possibleMoves.length === 0) {
+//         return {score: 0};
+//     }
+//     const moves = [];
+//     for (let i=0; i<possibleMoves.length; i++) {
+//         const move = {};
+//         move.index = gameBoard[possibleMoves[i]];
+//         gameBoard[possibleMoves[i]] = player.icon;
+//         if (player === playerAI) {
+//             const result = maximin(gameBoard, depth - 1, playerH, alpha, beta);
+//             move.score = result.score;
+//             if (result.score > alpha) {
+//                 alpha = result.score;
+//             } else if (alpha >= beta) {
+//                 return result.score;
+//             }
+//         } else {
+//             const result = maximin(gameBoard, depth - 1, playerAI, alpha, beta);
+//             move.score = result.score;
+//             if (result.score < beta) {
+//                 beta = result.score;
+//             } else if (alpha >= beta) {
+//                 return result.score;
+//             } 
+//         }
+//         gameBoard[possibleMoves[i]] = move.index;
+//         moves.push(move);
+//         console.log(move);
+//     }
+//     let bestMove = null;
+//     if (player === playerAI) {
+//         let maxEval = -Infinity;
+//         for (i=0; i<moves.length; i++) {
+//             if (moves[i].score > maxEval) {
+//                 maxEval = moves[i].score;
+//                 // alpha = Math.max(alpha, maxEval);
+//                 bestMove = i;
+//             }
+//             // if (alpha >= beta) {
+//             //     break
+//             // }
+//         }
+//     } else {
+//         let minEval = Infinity;
+//         for (i=0; i<moves.length; i++) {
+//             if (moves[i].score < minEval) {
+//                 minEval = moves[i].score;
+//                 // beta = Math.min(beta, minEval);
+//                 bestMove = i;
+//             }
+//             // if (alpha >= beta) {
+//             //     break
+//             // }
+//         }
+//     }
+//     return moves[bestMove];
+// }
 
-// let rowsAI = [0, 0, 0];
-// let colsAI = [0, 0, 0];
-// let diagAI = 0;
-// let oppDiagAI = 0;
 const evaluateMoveAI = (selection, player) => {
     let x = Number(selection[0]);
     let y = Number(selection[1]);
@@ -561,7 +620,7 @@ const newClickFunction = (e) => {
     // id = e.target.getAttribute('id');
     // board[id] = "X";
     // e.target.textContent = 'X';
-    newEvaluateMove(selection, player);
+    newEvaluateMove(selection, playerH);
 }
 cellArray.forEach(cell => {
     cell.addEventListener('click', newClickFunction, { once : true})
