@@ -262,28 +262,48 @@ grid.forEach(index => {
 //         }
 //     }
 // }
+const winCheck = (gameBoard, name) => {
+    const winningCombos = [
+        [0, 1, 2],
+        [3, 4, 5],
+        [6, 7, 8],
+        [0, 3, 6],
+        [1, 4, 7],
+        [2, 5, 8],
+        [0, 4, 8],
+        [2, 4, 6],
+    ]
+    return winningCombos.some(combination => {
+        return combination.every(index => {
+            if (gameBoard[index] === (name.icon)) {
+                return index;
+            }
+        })
+    })
+}
+
 function winning(board, player){
     if (
-    (board[0] === player && board[1] === player && board[2] === player) ||
-    (board[3] === player && board[4] === player && board[5] === player) ||
-    (board[6] === player && board[7] === player && board[8] === player) ||
-    (board[0] === player && board[3] === player && board[6] === player) ||
-    (board[1] === player && board[4] === player && board[7] === player) ||
-    (board[2] === player && board[5] === player && board[8] === player) ||
-    (board[0] === player && board[4] === player && board[8] === player) ||
-    (board[2] === player && board[4] === player && board[6] === player)
+    (board[0] === player.icon && board[1] === player.icon && board[2] === player.icon) ||
+    (board[3] === player.icon && board[4] === player.icon && board[5] === player.icon) ||
+    (board[6] === player.icon && board[7] === player.icon && board[8] === player.icon) ||
+    (board[0] === player.icon && board[3] === player.icon && board[6] === player.icon) ||
+    (board[1] === player.icon && board[4] === player.icon && board[7] === player.icon) ||
+    (board[2] === player.icon && board[5] === player.icon && board[8] === player.icon) ||
+    (board[0] === player.icon && board[4] === player.icon && board[8] === player.icon) ||
+    (board[2] === player.icon && board[4] === player.icon && board[6] === player.icon)
     ) {
     return true;
     } else {
     return false;
     }
 }
-const currentBoardState = [0, 1, 2, 3, 4, 5, 6, 7, 8];
-function minimax(boardTTT, mark) {
-    const possibleMoves = checkPossibleMoves(boardTTT);
-    if (winning(boardTTT, h)) {
+const currentBoardState = ["X", 1, "O", "X", 4, "X", "O", "O", 8];;
+function minimax(gameBoard, player) {
+    const possibleMoves = checkPossibleMoves(gameBoard);
+    if (winning(gameBoard, playerH)) {
         return {score: -1};
-    } else if (winning(boardTTT, ai)) {
+    } else if (winning(gameBoard, playerAI)) {
         return {score: 1};
     } else if (possibleMoves.length === 0) {
         return {score: 0};
@@ -291,21 +311,21 @@ function minimax(boardTTT, mark) {
     const moves = [];
     for (let i=0; i<possibleMoves.length; i++) {
         const move = {};
-        move.index = boardTTT[possibleMoves[i]];
-        boardTTT[possibleMoves[i]] = mark;
-        if (mark === ai) {
-            const result = minimax(boardTTT, h);
+        move.index = gameBoard[possibleMoves[i]];
+        gameBoard[possibleMoves[i]] = player.icon;
+        if (player === playerAI) {
+            const result = minimax(gameBoard, playerH);
             move.score = result.score;
         } else {
-            const result = minimax(boardTTT, ai);
+            const result = minimax(gameBoard, playerAI);
             move.score = result.score; 
         }
-        boardTTT[possibleMoves[i]] = move.index;
+        gameBoard[possibleMoves[i]] = move.index;
         moves.push(move);
         console.log(move);
     }
     let bestMove = null;
-    if (mark === ai) {
+    if (player === playerAI) {
         let maxEval = -Infinity;
         for (i=0; i<moves.length; i++) {
             if (moves[i].score > maxEval) {
@@ -314,10 +334,10 @@ function minimax(boardTTT, mark) {
             }
         }
     } else {
-        let maxEval = Infinity;
+        let minEval = Infinity;
         for (i=0; i<moves.length; i++) {
-            if (moves[i].score < maxEval) {
-                maxEval = moves[i].score;
+            if (moves[i].score < minEval) {
+                minEval = moves[i].score;
                 bestMove = i;
             }
         }
@@ -411,7 +431,7 @@ const game = (player) => {
     //
 
 }
-const board = ["X", "X", 2, 3, "O", 5, 6, 7, 8];
+const board = ["O", 1, 2, 3, 4, 5, 6, 7, 8];
 const displayBoard = (input) => {
     for (i=0; i<cellArray.length; i++) {
         cellArray[i].textContent = input[i];
@@ -478,7 +498,7 @@ const turnSelectionIntoMove = (selection) => {
 //     player: 0,
 //     computer: 0
 // }
-const player = {
+const playerH = {
     name: "player",
     icon: "O",
     win: 0,
