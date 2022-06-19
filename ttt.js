@@ -212,146 +212,154 @@ grid.forEach(index => {
         y++;
     })
 })
-const cellArray = Array.from(document.querySelectorAll('div.cell'));
-console.log(cellArray);
-let selection;
-let id;
-const clickFunction = (e) => {
-    selection = Array.from(e.target.getAttribute('data-value'));
-    id = e.target.getAttribute('id');
-    board[id] = 1;
-    e.target.textContent = 'X';
-    evaluateMove(selection, "Player");
-    console.log(selection);
+// const cellArray = Array.from(document.querySelectorAll('div.cell'));
+// console.log(cellArray);
+// let selection;
+// let id;
+// const clickFunction = (e) => {
+//     selection = Array.from(e.target.getAttribute('data-value'));
+//     id = e.target.getAttribute('id');
+//     board[id] = "X";
+//     e.target.textContent = 'X';
+//     evaluateMove(selection, "Player");
+//     console.log(selection);
+// }
+// cellArray.forEach(cell => {
+//     cell.addEventListener('click', clickFunction, { once : true})
+// })
+// let rowsContainer = [0, 0, 0];
+// let colsContainer = [0, 0, 0];
+// let diagContainer = 0;
+// let oppDiagContainer = 0;
+// const evaluateMove = (selection) => {
+//     let player = 'Amos';
+//     let cell = turnSelectionIntoMove(selection);
+//     board[cell] = "X";
+//     let x = Number(selection[0]);
+//     let y = Number(selection[1]);
+//     rowsContainer[y] +=1;
+//     if (rowsContainer[y] == 3) {
+//         console.log(`${player} has won via rows!`);
+//         win.player = 1;
+//     }
+//     colsContainer[x] +=1;
+//     if (colsContainer[x] == 3) {
+//         console.log(`${player} has won via cols!`);
+//         win.player = 1;
+//     }
+//     if (x == y) {
+//         diagContainer += 1;
+//         if (diagContainer == 3) {
+//             console.log(`${player} has won via diags!`);
+//             win.player = 1;
+//         }
+//     }
+//     if ((x + y + 1) == 3) {
+//         oppDiagContainer += 1;
+//         if (oppDiagContainer == 3) {
+//             console.log(`${player} has won via opp diags!`);
+//             win.player = 1;
+//         }
+//     }
+// }
+function winning(board, player){
+    if (
+    (board[0] === player && board[1] === player && board[2] === player) ||
+    (board[3] === player && board[4] === player && board[5] === player) ||
+    (board[6] === player && board[7] === player && board[8] === player) ||
+    (board[0] === player && board[3] === player && board[6] === player) ||
+    (board[1] === player && board[4] === player && board[7] === player) ||
+    (board[2] === player && board[5] === player && board[8] === player) ||
+    (board[0] === player && board[4] === player && board[8] === player) ||
+    (board[2] === player && board[4] === player && board[6] === player)
+    ) {
+    return true;
+    } else {
+    return false;
+    }
 }
-cellArray.forEach(cell => {
-    cell.addEventListener('click', clickFunction, { once : true})
-})
-let rowsContainer = [0, 0, 0];
-let colsContainer = [0, 0, 0];
-let diagContainer = 0;
-let oppDiagContainer = 0;
-const evaluateMove = (selection) => {
-    let player = 'Amos';
-    let cell = turnSelectionIntoMove(selection);
-    board[cell] = 1;
-    let x = Number(selection[0]);
-    let y = Number(selection[1]);
-    rowsContainer[y] +=1;
-    if (rowsContainer[y] == 3) {
-        console.log(`${player} has won via rows!`);
-        win.player = 1;
+const currentBoardState = [0, 1, 2, 3, 4, 5, 6, 7, 8];
+function minimax(boardTTT, mark) {
+    const possibleMoves = checkPossibleMoves(boardTTT);
+    if (winning(boardTTT, h)) {
+        return {score: -1};
+    } else if (winning(boardTTT, ai)) {
+        return {score: 1};
+    } else if (possibleMoves.length === 0) {
+        return {score: 0};
     }
-    colsContainer[x] +=1;
-    if (colsContainer[x] == 3) {
-        console.log(`${player} has won via cols!`);
-        win.player = 1;
-    }
-    if (x == y) {
-        diagContainer += 1;
-        if (diagContainer == 3) {
-            console.log(`${player} has won via diags!`);
-            win.player = 1;
+    const moves = [];
+    for (let i=0; i<possibleMoves.length; i++) {
+        const move = {};
+        move.index = boardTTT[possibleMoves[i]];
+        boardTTT[possibleMoves[i]] = mark;
+        if (mark === ai) {
+            const result = minimax(boardTTT, h);
+            move.score = result.score;
+        } else {
+            const result = minimax(boardTTT, ai);
+            move.score = result.score; 
         }
+        boardTTT[possibleMoves[i]] = move.index;
+        moves.push(move);
+        console.log(move);
     }
-    if ((x + y + 1) == 3) {
-        oppDiagContainer += 1;
-        if (oppDiagContainer == 3) {
-            console.log(`${player} has won via opp diags!`);
-            win.player = 1;
-        }
-    }
-}
-const minimax = function minimax(boardTTT, depth, maximizingPlayer) {
-    let eval;
-    let score = terminalState();
-    if ((depth == 0) || (score != false)) {
-        return score;
-    }
-    if (maximizingPlayer) {
+    let bestMove = null;
+    if (mark === ai) {
         let maxEval = -Infinity;
-        for (i=0; i<board.length; i++) {
-            if (board[i] == 0) {
-                let position = board[i];
-                let selection = turnMoveIntoSelection(position);
-                board[i] = 2;
-                evaluateMoveAI(selection);
-                eval = minimax(position, depth - 1, false);
-                maxEval = Math.max(maxEval, eval);
-                board[i] = 0;
-                return maxEval;
+        for (i=0; i<moves.length; i++) {
+            if (moves[i].score > maxEval) {
+                maxEval = moves[i].score;
+                bestMove = i;
+            }
+        }
+    } else {
+        let maxEval = Infinity;
+        for (i=0; i<moves.length; i++) {
+            if (moves[i].score < maxEval) {
+                maxEval = moves[i].score;
+                bestMove = i;
             }
         }
     }
-    else {
-        let minEval = +Infinity;
-        for (i=0; i<board.length; i++) {
-            if (board[i] == 0) {
-                let position = board[i];
-                let selection = turnMoveIntoSelection(position);
-                board[i] = 1;
-                evaluateMove(selection);
-                eval = minimax(position, depth - 1, true);
-                minEval = Math.min(minEval, eval);
-                board[i] = 0;
-                return minEval;
-            }
-        }
-    }
+    return moves[bestMove];
 }
-const bestMove = () => {
-    let maxEval = -Infinity;
-    let bestPosition;
-    for (i=0; i<board.length; i++) {
-        if (board[i] == 0) {
-            console.log(i);
-            let data = Array.from(cellArray[i].getAttribute('data-value'));
-            let a = Number(data[0]); 
-            let b = Number(data[1]);
-            let selection = [a, b]
-            console.log(selection);
-            evaluateMoveAI(selection);
-            let moveEval = minimax(board, 0, false);
-            board[i] = 0;
-            if (moveEval > maxEval) {
-                maxEval = moveEval;
-                bestPosition = i;
-            }
-        }
-    }
-    console.log(bestPosition);
-    return bestPosition;
-}
-let rowsAI = [0, 0, 0];
-let colsAI = [0, 0, 0];
-let diagAI = 0;
-let oppDiagAI = 0;
-const evaluateMoveAI = (selection) => {
+
+// let rowsAI = [0, 0, 0];
+// let colsAI = [0, 0, 0];
+// let diagAI = 0;
+// let oppDiagAI = 0;
+const evaluateMoveAI = (selection, player) => {
     let x = Number(selection[0]);
     let y = Number(selection[1]);
     let cell = turnSelectionIntoMove(selection);
-    rowsAI[y] +=1;
-    if (rowsAI[y] == 3) {
-        console.log('Computer has won via rows!');
-        win.computer = 1;
-        }
-    colsAI[x] +=1;
-    if (colsAI[x] == 3) {
-        console.log('Computer has won via cols!');
-        win.computer = 1;
+    updateBoardAI(cell);
+    player.rowsContainer[y] +=1;
+    if (player.rowsContainer[y] == 3) {
+        console.log(`${player.name} has won via rows!`);
+        player.win = 1;
+        // return `${player.name} won!`
+    }
+    player.colsContainer[x] +=1;
+    if (player.colsContainer[x] == 3) {
+        console.log(`${player.name} has won via cols!`);
+        player.win = 1;
+        // return `${player.name} won!`
     }
     if (x == y) {
-        diagAI += 1;
-        if (diagAI == 3) {
-            console.log('Computer has won via diags!')
-            win.computer = 1;
+        player.diagContainer += 1;
+        if (player.diagContainer == 3) {
+            player.win = 1;
+            console.log(`${player.name} has won via diags!`);
+            // return `${player.name} won!`
         }
     }
     if ((x + y + 1) == 3) {
-        oppDiagAI += 1;
-        if (oppDiagAI == 3) {
-            console.log('Computer has won via opp diags!');
-            win.computer = 1;
+        player.oppDiagContainer += 1;
+        if (player.oppDiagContainer == 3) {
+            console.log(`${player.name} has won via opp diags!`);
+            player.win = 1;
+            // return `${player.name} won!`
         }
     }
 }
@@ -369,7 +377,7 @@ const makeMoveAI = () => {
     for (i=0; i<cellArray.length; i++) {
         if (number == cellArray[i].getAttribute('id')) {
             cellArray[i].textContent = 'O';
-            board[i] = 2;
+            board[i] = "O";
             let data = Array.from(cellArray[i].getAttribute('data-value'));
             let selection = [Number(data[0]), Number(data[1])];
             evaluateMoveAI(selection);
@@ -377,9 +385,17 @@ const makeMoveAI = () => {
         }
     }
 }
-const makeMovePlayer = () => {
-
+const updateBoardAI = (number) => {
+    for (i=0; i<cellArray.length; i++) {
+        if (number == cellArray[i].getAttribute('id')) {
+            cellArray[i].textContent = 'O';
+            board[i] = "O";
+        }
+    }
 }
+// const makeMovePlayer = () => {
+
+// }
 const generateNumber = () => {
     const number = Math.floor((Math.random()*90) / 10);
     if (isNaN(number)) {
@@ -395,24 +411,37 @@ const game = (player) => {
     //
 
 }
-const board = [0, 0, 0, 0, 0, 0, 0, 0, 0];
-//problem with terminal - evaluateMove needs selection, and is specific to player (not AI)
-// and both of those use same input
-const terminalState = () => {
-    let terminal = false;
+const board = ["X", "X", 2, 3, "O", 5, 6, 7, 8];
+const displayBoard = (input) => {
+    for (i=0; i<cellArray.length; i++) {
+        cellArray[i].textContent = input[i];
+    }
+}
+// const terminalState = (gameBoard) => {
+//     let terminal = false;
+//     if (win.computer == 1) {
+//         return {score: 1};
+//     }
+//     else if (win.player == 1) {
+//         return {score: -1};
+//     } else if (checkDraw(gameBoard)) {
+//         return {score: 0};
+//     }
+//     return terminal;
+// }
+const checkScore = () => {
     if (win.computer == 1) {
-        return 1;
+        return {score: 1};
     }
     else if (win.player == 1) {
-        return -1;
+        return {score: -1};
     } else if (checkDraw()) {
-        return 0;
+        return {score: 0};
     }
-    return terminal;
 }
-const checkDraw = () => {
-    for (i=0; i<board.length; i++) {
-        if (board[i] > 0) {
+const checkDraw = (gameBoard) => {
+    for (i=0; i<gameBoard.length; i++) {
+        if (gameBoard[i] == "X" || gameBoard[i] == "O") {
             continue;
         } else {
             return false;
@@ -420,17 +449,10 @@ const checkDraw = () => {
     }
     return true;
 }
-const checkPossibleMoves = () => {
-    let possibleMoves = [];
-    for (i=0; i<board.length; i++) {
-        if (board[i] == 0) {
-            possibleMoves.push(i);
-        }
-    }
-    return possibleMoves;
+const checkPossibleMoves = (gameBoard) => {
+    return gameBoard.filter(index => index != "X" && index != "O");
 }
 const turnMoveIntoSelection = (move) => {
-    console.log(move);
     let x = Array.from(cellArray[move].getAttribute('data-value'));
     let selection = [Number(x[0]), Number(x[1])];
     return selection;
@@ -452,7 +474,118 @@ const turnSelectionIntoMove = (selection) => {
         }
     }
 }
-let win = {
-    player: 0,
-    computer: 0
+// let win = {
+//     player: 0,
+//     computer: 0
+// }
+const player = {
+    name: "player",
+    icon: "O",
+    win: 0,
+    rowsContainer: [0, 0, 0],
+    colsContainer: [0, 0, 0],
+    diagContainer: 0,
+    oppDiagContainer: 0
 }
+const playerAI = {
+    name: "AI",
+    icon: "X",
+    win: 0,
+    rowsContainer: [0, 0, 0],
+    colsContainer: [0, 0, 0],
+    diagContainer: 0,
+    oppDiagContainer: 0
+}
+const newEvaluateMove = (selection, player) => {
+    let cell = turnSelectionIntoMove(selection);
+    board[cell] = player.icon;
+    cellArray[cell].textContent = player.icon;
+    let x = Number(selection[0]);
+    let y = Number(selection[1]);
+    player.rowsContainer[y] +=1;
+    if (player.rowsContainer[y] == 3) {
+        console.log(`${player.name} has won via rows!`);
+        player.win = 1;
+        // return `${player.name} won!`
+    }
+    player.colsContainer[x] +=1;
+    if (player.colsContainer[x] == 3) {
+        console.log(`${player.name} has won via cols!`);
+        player.win = 1;
+        // return `${player.name} won!`
+    }
+    if (x == y) {
+        player.diagContainer += 1;
+        if (player.diagContainer == 3) {
+            player.win = 1;
+            console.log(`${player.name} has won via diags!`);
+            // return `${player.name} won!`
+        }
+    }
+    if ((x + y + 1) == 3) {
+        player.oppDiagContainer += 1;
+        if (player.oppDiagContainer == 3) {
+            console.log(`${player.name} has won via opp diags!`);
+            player.win = 1;
+            // return `${player.name} won!`
+        }
+    }
+}
+const cellArray = Array.from(document.querySelectorAll('div.cell'));
+console.log(cellArray);
+let selection;
+let id;
+const newClickFunction = (e) => {
+    selection = Array.from(e.target.getAttribute('data-value'));
+    console.log(selection);
+    // id = e.target.getAttribute('id');
+    // board[id] = "X";
+    // e.target.textContent = 'X';
+    newEvaluateMove(selection, player);
+}
+cellArray.forEach(cell => {
+    cell.addEventListener('click', newClickFunction, { once : true})
+})
+const newTerminalState = (gameBoard) => {
+    let terminal = false;
+    if (playerAI.win == 1) {
+        terminal = 1;
+    }
+    else if (player.win == 1) {
+        terminal = -1;
+    } else if (checkDraw(gameBoard)) {
+        terminal = 0;
+    }
+    return terminal;
+}
+// const checkScore = () => {
+//     if (win.computer == 1) {
+//         return {score: 1};
+//     }
+//     else if (win.player == 1) {
+//         return {score: -1};
+//     } else if (checkDraw()) {
+//         return {score: 0};
+//     }
+// }
+const undoMove = function(selection, player) {
+    let cell = turnSelectionIntoMove(selection);
+    board[cell] = cell;
+    cellArray[cell].textContent = '';
+    let x = Number(selection[0]);
+    let y = Number(selection[1]);
+    player.rowsContainer[y] -=1;
+    player.colsContainer[x] -=1;
+    if (x == y) {
+        player.diagContainer -= 1;
+    }
+    if ((x + y + 1) == 3) {
+        player.oppDiagContainer -= 1;
+    }
+    if (player.win == 1) {
+        player.win = 0;
+    }
+}
+
+const h = "O";
+const ai = "X"
