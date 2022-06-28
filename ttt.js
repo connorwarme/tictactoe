@@ -297,6 +297,13 @@ function winning(board, player){
     }
 }
 const currentBoardState = ["X", 1, "O", "X", 4, "X", "O", "O", 8];;
+
+// the minimax algorithm:
+// -> checks for a winner, and assigns a score (for win, loss, or tie)
+// -> catalogues potential moves
+// -> for each potential move, algorithm plays out the board (recursively calling minimax) and assigns a score
+// -> maximizing player selects move to maximize their score, minimizing player seeks to minimize opponent's score
+// ->
 function minimax(gameBoard, player) {
     const possibleMoves = checkPossibleMoves(gameBoard);
     if (winning(gameBoard, playerH)) {
