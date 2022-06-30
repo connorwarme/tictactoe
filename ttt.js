@@ -192,26 +192,6 @@
 // let pancho = playerFactory('pancho', 'O');
 // gameBoard.grid();
 // gameBoard.addListeners();
-const gridContainer = document.querySelector('div.container');
-let grid = [];
-for (i=0; i<3; i++) {
-    grid.push(i);
-}
-grid.forEach(index => grid[index] = [0, 1, 2]);
-console.log(grid);
-let z = -1;
-let y = 0;
-grid.forEach(index => {
-    z++;
-    index.forEach(i => {
-        const cell = document.createElement('div');
-        cell.classList.add('cell');
-        cell.setAttribute('data-value', `${i}${z}`);
-        cell.setAttribute('id', `${y}`);
-        gridContainer.appendChild(cell);
-        y++;
-    })
-})
 // const cellArray = Array.from(document.querySelectorAll('div.cell'));
 // console.log(cellArray);
 // let selection;
@@ -262,93 +242,7 @@ grid.forEach(index => {
 //         }
 //     }
 // }
-const winCheck = (gameBoard, name) => {
-    const winningCombos = [
-        [0, 1, 2],
-        [3, 4, 5],
-        [6, 7, 8],
-        [0, 3, 6],
-        [1, 4, 7],
-        [2, 5, 8],
-        [0, 4, 8],
-        [2, 4, 6],
-    ]
-    return winningCombos.some(combination => {
-        return combination.every(index => {
-            return gameBoard[index] === (name.icon)
-            })
-    })
-}
-
-function winning(board, player){
-    if (
-    (board[0] === player.icon && board[1] === player.icon && board[2] === player.icon) ||
-    (board[3] === player.icon && board[4] === player.icon && board[5] === player.icon) ||
-    (board[6] === player.icon && board[7] === player.icon && board[8] === player.icon) ||
-    (board[0] === player.icon && board[3] === player.icon && board[6] === player.icon) ||
-    (board[1] === player.icon && board[4] === player.icon && board[7] === player.icon) ||
-    (board[2] === player.icon && board[5] === player.icon && board[8] === player.icon) ||
-    (board[0] === player.icon && board[4] === player.icon && board[8] === player.icon) ||
-    (board[2] === player.icon && board[4] === player.icon && board[6] === player.icon)
-    ) {
-    return true;
-    } else {
-    return false;
-    }
-}
-const currentBoardState = ["X", 1, "O", "X", 4, "X", "O", "O", 8];;
-
-// the minimax algorithm:
-// -> checks for a winner, and assigns a score (for win, loss, or tie)
-// -> catalogues potential moves
-// -> for each potential move, algorithm plays out the board (recursively calling minimax) and assigns a score
-// -> maximizing player selects move to maximize their score, minimizing player seeks to minimize opponent's score
-// ->
-function minimax(gameBoard, player) {
-    const possibleMoves = checkPossibleMoves(gameBoard);
-    if (winning(gameBoard, playerH)) {
-        return {score: -1};
-    } else if (winning(gameBoard, playerAI)) {
-        return {score: 1};
-    } else if (possibleMoves.length === 0) {
-        return {score: 0};
-    }
-    const moves = [];
-    for (let i=0; i<possibleMoves.length; i++) {
-        const move = {};
-        move.index = gameBoard[possibleMoves[i]];
-        gameBoard[possibleMoves[i]] = player.icon;
-        if (player === playerAI) {
-            const result = minimax(gameBoard, playerH);
-            move.score = result.score;
-        } else {
-            const result = minimax(gameBoard, playerAI);
-            move.score = result.score; 
-        }
-        gameBoard[possibleMoves[i]] = move.index;
-        moves.push(move);
-        console.log(move);
-    }
-    let bestMove = null;
-    if (player === playerAI) {
-        let maxEval = -Infinity;
-        for (i=0; i<moves.length; i++) {
-            if (moves[i].score > maxEval) {
-                maxEval = moves[i].score;
-                bestMove = i;
-            }
-        }
-    } else {
-        let minEval = Infinity;
-        for (i=0; i<moves.length; i++) {
-            if (moves[i].score < minEval) {
-                minEval = moves[i].score;
-                bestMove = i;
-            }
-        }
-    }
-    return moves[bestMove];
-}
+const currentBoardState = ["X", 1, "O", "X", 4, "X", "O", "O", 8];
 // let max = 1000;
 // let min = -1000;
 // function maximin(gameBoard, depth, player, alpha, beta) {
@@ -490,19 +384,14 @@ const generateNumber = () => {
         return number;
         }
     }
-const game = (player) => {
-    //make a move
-    //check for win
-    //check for draw
-    //
+// const game = (player) => {
+//     //make a move
+//     //check for win
+//     //check for draw
+//     //
 
-}
-const board = ["O", 1, 2, 3, 4, 5, 6, 7, 8];
-const displayBoard = (input) => {
-    for (i=0; i<cellArray.length; i++) {
-        cellArray[i].textContent = input[i];
-    }
-}
+// }
+const board = ["O", 1, "O", 3, "X", 5, 6, 7, 8];
 // const terminalState = (gameBoard) => {
 //     let terminal = false;
 //     if (win.computer == 1) {
@@ -535,9 +424,6 @@ const checkDraw = (gameBoard) => {
     }
     return true;
 }
-const checkPossibleMoves = (gameBoard) => {
-    return gameBoard.filter(index => index != "X" && index != "O");
-}
 const turnMoveIntoSelection = (move) => {
     let x = Array.from(cellArray[move].getAttribute('data-value'));
     let selection = [Number(x[0]), Number(x[1])];
@@ -560,90 +446,43 @@ const turnSelectionIntoMove = (selection) => {
         }
     }
 }
-// let win = {
-//     player: 0,
-//     computer: 0
+
+// const newEvaluateMove = (selection, player) => {
+//     let cell = turnSelectionIntoMove(selection);
+//     board[cell] = player.icon;
+//     cellArray[cell].textContent = player.icon;
+//     let x = Number(selection[0]);
+//     let y = Number(selection[1]);
+//     player.rowsContainer[y] +=1;
+//     if (player.rowsContainer[y] == 3) {
+//         console.log(`${player.name} has won via rows!`);
+//         player.win = 1;
+//         // return `${player.name} won!`
+//     }
+//     player.colsContainer[x] +=1;
+//     if (player.colsContainer[x] == 3) {
+//         console.log(`${player.name} has won via cols!`);
+//         player.win = 1;
+//         // return `${player.name} won!`
+//     }
+//     if (x == y) {
+//         player.diagContainer += 1;
+//         if (player.diagContainer == 3) {
+//             player.win = 1;
+//             console.log(`${player.name} has won via diags!`);
+//             // return `${player.name} won!`
+//         }
+//     }
+//     if ((x + y + 1) == 3) {
+//         player.oppDiagContainer += 1;
+//         if (player.oppDiagContainer == 3) {
+//             console.log(`${player.name} has won via opp diags!`);
+//             player.win = 1;
+//             // return `${player.name} won!`
+//         }
+//     }
 // }
-const playerH = {
-    name: "player",
-    icon: "O",
-    win: 0,
-    rowsContainer: [0, 0, 0],
-    colsContainer: [0, 0, 0],
-    diagContainer: 0,
-    oppDiagContainer: 0
-}
-const playerAI = {
-    name: "AI",
-    icon: "X",
-    win: 0,
-    rowsContainer: [0, 0, 0],
-    colsContainer: [0, 0, 0],
-    diagContainer: 0,
-    oppDiagContainer: 0
-}
-const newEvaluateMove = (selection, player) => {
-    let cell = turnSelectionIntoMove(selection);
-    board[cell] = player.icon;
-    cellArray[cell].textContent = player.icon;
-    let x = Number(selection[0]);
-    let y = Number(selection[1]);
-    player.rowsContainer[y] +=1;
-    if (player.rowsContainer[y] == 3) {
-        console.log(`${player.name} has won via rows!`);
-        player.win = 1;
-        // return `${player.name} won!`
-    }
-    player.colsContainer[x] +=1;
-    if (player.colsContainer[x] == 3) {
-        console.log(`${player.name} has won via cols!`);
-        player.win = 1;
-        // return `${player.name} won!`
-    }
-    if (x == y) {
-        player.diagContainer += 1;
-        if (player.diagContainer == 3) {
-            player.win = 1;
-            console.log(`${player.name} has won via diags!`);
-            // return `${player.name} won!`
-        }
-    }
-    if ((x + y + 1) == 3) {
-        player.oppDiagContainer += 1;
-        if (player.oppDiagContainer == 3) {
-            console.log(`${player.name} has won via opp diags!`);
-            player.win = 1;
-            // return `${player.name} won!`
-        }
-    }
-}
-const cellArray = Array.from(document.querySelectorAll('div.cell'));
-console.log(cellArray);
-let selection;
-let id;
-const newClickFunction = (e) => {
-    selection = Array.from(e.target.getAttribute('data-value'));
-    console.log(selection);
-    // id = e.target.getAttribute('id');
-    // board[id] = "X";
-    // e.target.textContent = 'X';
-    newEvaluateMove(selection, playerH);
-}
-cellArray.forEach(cell => {
-    cell.addEventListener('click', newClickFunction, { once : true})
-})
-const newTerminalState = (gameBoard) => {
-    let terminal = false;
-    if (playerAI.win == 1) {
-        terminal = 1;
-    }
-    else if (player.win == 1) {
-        terminal = -1;
-    } else if (checkDraw(gameBoard)) {
-        terminal = 0;
-    }
-    return terminal;
-}
+
 // const checkScore = () => {
 //     if (win.computer == 1) {
 //         return {score: 1};
@@ -654,24 +493,213 @@ const newTerminalState = (gameBoard) => {
 //         return {score: 0};
 //     }
 // }
-const undoMove = function(selection, player) {
-    let cell = turnSelectionIntoMove(selection);
-    board[cell] = cell;
-    cellArray[cell].textContent = '';
-    let x = Number(selection[0]);
-    let y = Number(selection[1]);
-    player.rowsContainer[y] -=1;
-    player.colsContainer[x] -=1;
-    if (x == y) {
-        player.diagContainer -= 1;
+// const undoMove = function(selection, player) {
+//     let cell = turnSelectionIntoMove(selection);
+//     board[cell] = cell;
+//     cellArray[cell].textContent = '';
+//     let x = Number(selection[0]);
+//     let y = Number(selection[1]);
+//     player.rowsContainer[y] -=1;
+//     player.colsContainer[x] -=1;
+//     if (x == y) {
+//         player.diagContainer -= 1;
+//     }
+//     if ((x + y + 1) == 3) {
+//         player.oppDiagContainer -= 1;
+//     }
+//     if (player.win == 1) {
+//         player.win = 0;
+//     }
+// }
+//
+// create board
+// does it need data-value attribute? I changed how I check for win...
+const createGrid = (() => {
+    const gridContainer = document.querySelector('div.container');
+    let grid = [];
+    for (i=0; i<3; i++) {
+        grid.push(i);
     }
-    if ((x + y + 1) == 3) {
-        player.oppDiagContainer -= 1;
+    grid.forEach(index => grid[index] = [0, 1, 2]);
+    // let z = -1;
+    let y = 0;
+    grid.forEach(index => {
+        // z++;
+        index.forEach(i => {
+            const cell = document.createElement('div');
+            cell.classList.add('cell');
+            // cell.setAttribute('data-value', `${i}${z}`);
+            cell.setAttribute('id', `${y}`);
+            gridContainer.appendChild(cell);
+            y++;
+        })
+    })
+
+// create click functionality
+// no longer need datavalue attribute?
+// click function needs to check whose turn it is (for PvP version) 
+    const cellArray = Array.from(document.querySelectorAll('div.cell'));
+    // let selection;
+    let id;
+    const newClickFunction = (e) => {
+        // selection = Array.from(e.target.getAttribute('data-value'));
+        id = e.target.getAttribute('id');
+        if (check(id) == false) {
+            console.log('square already chosen, pick another');
+        } else {
+            board[id] = "O";
+            e.target.textContent = 'O';
+            console.log(id);
+        };
+        // board[id] = "O";
+        // e.target.textContent = 'O';
+        // console.log(id);
+        // newEvaluateMove(selection, playerH);
     }
-    if (player.win == 1) {
-        player.win = 0;
+    cellArray.forEach(cell => {
+        cell.addEventListener('click', newClickFunction, { once : true})
+    })
+    // display board array on browser
+const displayBoard = (input) => {
+    for (i=0; i<cellArray.length; i++) {
+        cellArray[i].textContent = input[i];
     }
 }
+    return { newClickFunction, displayBoard };
+})();
+// create players with factory function, return their name and marker
+const playerFactory = (name, icon) => {
+    return {name, icon};
+}
+const playerH = playerFactory("player", "O");
+const playerAI = playerFactory("AI", "X");
+// const game = (() => {
+    let circleTurn = false;
+    // const currentClass = circleTurn ? playerH : playerAI;
+    const turn = (input) => {
+        const cellArray = Array.from(document.querySelectorAll('div.cell'));
+        const currentClass = circleTurn ? playerH : playerAI;
+        if (check(input) == false) {
+            alert('Please choose an empty square!')
+        } else {
+            board[input] = currentClass.icon;
+            cellArray[input].textContent = `${currentClass.icon}`;
+            console.log(currentClass.icon);
+            alternateTurn();
+        }
 
-const h = "O";
-const ai = "X"
+    }
+    // alternate player turns
+    // can set up a currentClass function (for PvP version) that lets x go for its turn, otherwise o goes
+    const alternateTurn = () => {
+        circleTurn = !circleTurn;
+    }
+    // generate random move for AI:
+    // -> checks for available moves
+    // -> randomly generates index number to select move
+    // -> returns index
+    const randomMoveAI = () => {
+        let moves = checkPossibleMoves(board);
+        return moves[Math.floor(Math.random() * moves.length)];
+    }
+    // the minimax algorithm:
+    // -> checks for a winner, and assigns a score (for win, loss, or tie)
+    // -> catalogues potential moves
+    // -> for each potential move, algorithm plays out the board (recursively calling minimax) and assigns a score
+    // -> maximizing player selects move to maximize their score, minimizing player seeks to minimize opponent's score
+    // ->
+    function minimax(gameBoard, player) {
+        const possibleMoves = checkPossibleMoves(gameBoard);
+        if (winCheck(gameBoard, playerH)) {
+            return {score: -1};
+        } else if (winCheck(gameBoard, playerAI)) {
+            return {score: 1};
+        } else if (possibleMoves.length === 0) {
+            return {score: 0};
+        }
+        const moves = [];
+        for (let i=0; i<possibleMoves.length; i++) {
+            const move = {};
+            move.index = gameBoard[possibleMoves[i]];
+            gameBoard[possibleMoves[i]] = player.icon;
+            if (player === playerAI) {
+                const result = minimax(gameBoard, playerH);
+                move.score = result.score;
+            } else {
+                const result = minimax(gameBoard, playerAI);
+                move.score = result.score; 
+            }
+            gameBoard[possibleMoves[i]] = move.index;
+            moves.push(move);
+            console.log(move);
+        }
+        let bestMove = null;
+        if (player === playerAI) {
+            let maxEval = -Infinity;
+            for (i=0; i<moves.length; i++) {
+                if (moves[i].score > maxEval) {
+                    maxEval = moves[i].score;
+                    bestMove = i;
+                }
+            }
+        } else {
+            let minEval = Infinity;
+            for (i=0; i<moves.length; i++) {
+                if (moves[i].score < minEval) {
+                    minEval = moves[i].score;
+                    bestMove = i;
+                }
+            }
+        }
+        return moves[bestMove];
+    }
+    // iterate over board array and return indexes that are available
+    const checkPossibleMoves = (gameBoard) => {
+        return gameBoard.filter(index => index != "X" && index != "O");
+    }
+    // utility function: checks board for win
+    function winning(board, player){
+        if (
+        (board[0] === player.icon && board[1] === player.icon && board[2] === player.icon) ||
+        (board[3] === player.icon && board[4] === player.icon && board[5] === player.icon) ||
+        (board[6] === player.icon && board[7] === player.icon && board[8] === player.icon) ||
+        (board[0] === player.icon && board[3] === player.icon && board[6] === player.icon) ||
+        (board[1] === player.icon && board[4] === player.icon && board[7] === player.icon) ||
+        (board[2] === player.icon && board[5] === player.icon && board[8] === player.icon) ||
+        (board[0] === player.icon && board[4] === player.icon && board[8] === player.icon) ||
+        (board[2] === player.icon && board[4] === player.icon && board[6] === player.icon)
+        ) {
+        return true;
+        } else {
+        return false;
+        }
+    }
+    // alternate utility function:
+    // faster?
+    // not 100% that it works. still testing. remember to change in minimax fn.
+    const winCheck = (gameBoard, name) => {
+        const winningCombos = [
+            [0, 1, 2],
+            [3, 4, 5],
+            [6, 7, 8],
+            [0, 3, 6],
+            [1, 4, 7],
+            [2, 5, 8],
+            [0, 4, 8],
+            [2, 4, 6],
+        ]
+        return winningCombos.some(combination => {
+            return combination.every(index => {
+                return gameBoard[index] === (name.icon)
+                })
+        })
+    }
+    const check = (id) => {
+        let moves = checkPossibleMoves(board);
+        if (moves.find(element => element == id)) {
+            return id;
+        } else {
+            return false;
+        }
+    }
+// })();
