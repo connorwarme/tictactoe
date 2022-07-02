@@ -391,7 +391,7 @@ const generateNumber = () => {
 //     //
 
 // }
-const board = ["O", 1, "O", 3, "X", 5, 6, 7, 8];
+const board = [0, 1, 2, 3, 4, 5, 6, 7, 8];
 // const terminalState = (gameBoard) => {
 //     let terminal = false;
 //     if (win.computer == 1) {
@@ -511,83 +511,133 @@ const turnSelectionIntoMove = (selection) => {
 //         player.win = 0;
 //     }
 // }
-//
+// scoreboard:
+// -> player cards (name, marker, running score)
+// -> start button?
+const scoreboardContainer = document.querySelector('div.scoreboardContainer');
+const pCards = Array.from(scoreboardContainer.querySelectorAll('div.card'));
+const p1Card = pCards[0];
+const p2Card = pCards[1];
+// pCards.forEach(index => {
+//     const name = document.createElement('div');
+//     name.classList.add('name');
+//     // name.textContent = 'Name: ';
+//     index.appendChild(name);
+//     const marker = document.createElement('div');
+//     marker.classList.add('marker');
+//     // marker.textContent = 'Marker: ';
+//     index.appendChild(marker);
+//     const wins = document.createElement('div');
+//     wins.classList.add('wins');
+//     // wins.textContent = 'Wins: ';
+//     index.appendChild(wins);
+// })
+// console.log(pCards);
 // create board
-// does it need data-value attribute? I changed how I check for win...
-const createGrid = (() => {
-    const gridContainer = document.querySelector('div.container');
-    let grid = [];
-    for (i=0; i<3; i++) {
-        grid.push(i);
-    }
-    grid.forEach(index => grid[index] = [0, 1, 2]);
-    // let z = -1;
-    let y = 0;
-    grid.forEach(index => {
-        // z++;
-        index.forEach(i => {
-            const cell = document.createElement('div');
-            cell.classList.add('cell');
-            // cell.setAttribute('data-value', `${i}${z}`);
-            cell.setAttribute('id', `${y}`);
-            gridContainer.appendChild(cell);
-            y++;
+// give each cell an id # that correlates with index position in board array
+const grid = (() => {
+    const gridContainer = document.querySelector('div.gridContainer');
+    let cellArray;
+    const create = () => {
+        let grid = [];
+        for (i=0; i<3; i++) {
+            grid.push(i);
+        }
+        grid.forEach(index => grid[index] = [0, 1, 2]);
+        let y = 0;
+        grid.forEach(index => {
+            index.forEach(i => {
+                const cell = document.createElement('div');
+                cell.classList.add('cell');
+                cell.setAttribute('id', `${y}`);
+                gridContainer.appendChild(cell);
+                y++;
+            })
         })
-    })
-
+         // add 'click' listeners to each cell, limit to one click per cell per game
+        cellArray = Array.from(document.querySelectorAll('div.cell'));
+        cellArray.forEach(cell => {
+            cell.addEventListener('click', newClickFunction, { once : true })
+        })
+    }
 // create click functionality
-// no longer need datavalue attribute?
-// click function needs to check whose turn it is (for PvP version) 
-    const cellArray = Array.from(document.querySelectorAll('div.cell'));
-    // let selection;
-    let id;
+// click inputs id of cell into turn function
     const newClickFunction = (e) => {
-        // selection = Array.from(e.target.getAttribute('data-value'));
-        id = e.target.getAttribute('id');
-        if (check(id) == false) {
-            console.log('square already chosen, pick another');
-        } else {
-            board[id] = "O";
-            e.target.textContent = 'O';
-            console.log(id);
-        };
-        // board[id] = "O";
-        // e.target.textContent = 'O';
-        // console.log(id);
-        // newEvaluateMove(selection, playerH);
+        let id = e.target.getAttribute('id');
+        console.log(id);
+        game.turn(id);
     }
-    cellArray.forEach(cell => {
-        cell.addEventListener('click', newClickFunction, { once : true})
-    })
     // display board array on browser
-const displayBoard = (input) => {
-    for (i=0; i<cellArray.length; i++) {
-        cellArray[i].textContent = input[i];
+    const displayBoard = (input) => {
+        cellArray = Array.from(document.querySelectorAll('div.cell'));
+        for (i=0; i<cellArray.length; i++) {
+            cellArray[i].textContent = `${input[i]}`;
+        }
     }
-}
-    return { newClickFunction, displayBoard };
+    const reset = () => {
+        cellArray = Array.from(gridContainer.querySelectorAll('div.cell'));
+        cellArray.forEach(cell => {
+            cell.removeEventListener('click', newClickFunction, { once: true })
+        })
+        while (gridContainer.firstChild) {
+            gridContainer.removeChild(gridContainer.firstChild);
+        }
+    }
+    create();
+    return { newClickFunction, displayBoard, reset, create, };
 })();
 // create players with factory function, return their name and marker
-const playerFactory = (name, icon) => {
-    return {name, icon};
+const playerFactory = (name, icon, wins) => {
+    return {name, icon, wins};
 }
-const playerH = playerFactory("player", "O");
-const playerAI = playerFactory("AI", "X");
-// const game = (() => {
+const playerH = playerFactory("player", "O", 0);
+const playerAI = playerFactory("AI", "X", 0);
+const game = (() => {
     let circleTurn = false;
     // const currentClass = circleTurn ? playerH : playerAI;
+    // turn for player (and for PvP)
+    const basicMoveAI = () => {
+        if (!circleTurn) {
+            turn(randomMoveAI());
+        }
+    }
+    const advancedMoveAI = () => {
+        if (!circleTurn) {
+            if (checkPossibleMoves(board).length == 9) {
+                turn(0);
+            } else {
+                console.log('fire');
+            turn(minimax(board, playerAI).index);
+            }
+        }
+    }
     const turn = (input) => {
         const cellArray = Array.from(document.querySelectorAll('div.cell'));
-        const currentClass = circleTurn ? playerH : playerAI;
-        if (check(input) == false) {
+        const currentPlayer = circleTurn ? playerH : playerAI;
+        if (check(input) == -1) {
             alert('Please choose an empty square!')
         } else {
-            board[input] = currentClass.icon;
-            cellArray[input].textContent = `${currentClass.icon}`;
-            console.log(currentClass.icon);
+            board[input] = currentPlayer.icon;
+            cellArray[input].textContent = `${currentPlayer.icon}`;
+            console.log(currentPlayer.icon);
+            if (terminalState(board, currentPlayer)) {
+                // display endgame message
+                console.log('fire');
+            } else {
             alternateTurn();
+            }
         }
-
+    }
+    const terminalState = (board, player) => {
+        if (winCheck(board, player)) {
+            console.log(`${player.name} wins!`);
+            return true;
+        } else if (checkPossibleMoves(board).length == 0) {
+            console.log(`It's a draw!`);
+            return true;
+        } else {
+            return false;
+        }
     }
     // alternate player turns
     // can set up a currentClass function (for PvP version) that lets x go for its turn, otherwise o goes
@@ -696,10 +746,19 @@ const playerAI = playerFactory("AI", "X");
     }
     const check = (id) => {
         let moves = checkPossibleMoves(board);
-        if (moves.find(element => element == id)) {
+        if (moves[0] == id) {
+            return id
+        } else if (moves.find(index => index == id)) {
             return id;
         } else {
-            return false;
+            return -1;
         }
     }
-// })();
+    const restart = () => {
+        for (i=0; i<9; i++) {
+            board[i] = i;
+        }
+        circleTurn = false;
+    }
+    return { turn, basicMoveAI, advancedMoveAI, restart }
+})();
