@@ -10,37 +10,62 @@
 </head>
 <body>
     <div class="main">
-        <div class="scoreboardContainer">
-            <div class="card">
-                <!-- <div class="name">
-                    <label for="name">Name</label> 
-                    <input type="text" id="name" name="name">
+        <div class="modalContainer">
+            <div class="p1">
+                <h1>PLAYER ONE</h1>
+                <div class="start">Get Started!</div>
+                <div class="name">
+                    <label for="name">Enter Your Name:</label> 
+                    <input type="text" class="p1Name" name="name" placeholder="Player One">
+                    <br>
                 </div>
                 <div class="icon">
-                    <label for="icon">Icon</label> 
+                    <label for="icon">Select Your Icon:</label> 
+                    <input type="text" class="p1Icon" name="icon" placeholder="O">
+                    <br>
+                </div>
+                <div class="gameMode">
+                    <div class="options">Choose Your Game Mode</div>
+                    <input type="button" class="pvp" value="PvP">
+                    <input type="button" class="easyAI" value="easyAI">
+                    <input type="button" class="expertAI" value="expertAI">
+                </div>
+            </div>
+            <div class="p2">
+                <h1>PLAYER TWO</h1>
+                <div class="name">
+                    <label for="name">Name:</label> 
+                    <input type="text" id="name" name="name" placeholder="Player Two">
+                </div>
+                <div class="icon">
+                    <label for="icon">Icon:</label> 
                     <input type="text" id="icon" name="icon">
-                </div> -->
-                <div class="name">Name
+                </div>
+            </div>
+        </div>
+        <div class="scoreboardContainer">
+            <div class="p1Card">
+                <h1>PLAYER ONE</h1>
+                <div class="name">Name:
                     <div class="nameDisplay"></div>
                 </div>
-                <div class="icon">Icon
+                <div class="icon">Icon:
                     <div class="iconDisplay"></div>
                 </div>
-                <div class="wins">Wins
+                <div class="wins">Wins:
                     <div class="winsTally"></div>
                 </div>
             </div>
             <div class="middle">VS</div>
-            <div class="card">
-                <div class="name">
-                    <label for="name">Name</label> 
-                    <input type="text" id="name" name="name">
+            <div class="p2Card">
+                <h1>PLAYER TWO</h1>
+                <div class="name">Name:
+                    <div class="nameDisplay"></div>
                 </div>
-                <div class="icon">
-                    <label for="icon">Icon</label> 
-                    <input type="text" id="icon" name="icon">
+                <div class="icon">Icon:
+                    <div class="iconDisplay"></div>
                 </div>
-                <div class="wins">Wins
+                <div class="wins">Wins:
                     <div class="winsTally"></div>
                 </div>
             </div>

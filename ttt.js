@@ -515,9 +515,9 @@ const turnSelectionIntoMove = (selection) => {
 // -> player cards (name, marker, running score)
 // -> start button?
 const scoreboardContainer = document.querySelector('div.scoreboardContainer');
-const pCards = Array.from(scoreboardContainer.querySelectorAll('div.card'));
-const p1Card = pCards[0];
-const p2Card = pCards[1];
+const scoreboard = Array.from(scoreboardContainer.children);
+const p1Card = scoreboard[0];
+const p2Card = scoreboard[2];
 // pCards.forEach(index => {
 //     const name = document.createElement('div');
 //     name.classList.add('name');
@@ -762,3 +762,49 @@ const game = (() => {
     }
     return { turn, basicMoveAI, advancedMoveAI, restart }
 })();
+// modal (on initialization)
+// -> add name, choose icon, select game mode
+// -> if PvP, open section of form for second player name and icon
+const modalContainer = document.querySelector('div.modalContainer');
+const modals = Array.from(modalContainer.children);
+const p1Modal = modals[0];
+const p2Modal = modals[1];
+const modalListener = () => {
+    document.addEventListener("DOMContentLoaded", function() {
+        setTimeout(function() {
+            modal();
+        }, 1000);
+    })
+    const modal = () => {
+        modalContainer.style.display = "block";
+    }
+    const pvpbtn = p1Modal.children[4].children[1];
+    const pvpFn = () => {
+        console.log('pvp mode!')
+    }
+    pvpbtn.addEventListener('click', pvpFn);
+    const easybtn = p1Modal.children[4].children[2];
+    const easyFn = () => {
+        console.log('easy mode!')
+    }
+    easybtn.addEventListener('click', easyFn);
+    const expertbtn = p1Modal.children[4].children[3];
+    const expertFn = () => {
+        console.log('expert mode!');
+    }
+    expertbtn.addEventListener('click', expertFn);
+}
+modalListener();
+const p1Input = [p1Modal.children[2].children[1], p1Modal.children[3].children[1]];
+const uploadP1 = () => {
+    let name = p1Input[0].value;
+    if (name == '') {
+        name = "Player One";
+    }
+    p1Card.children[1].textContent = `Name: ${name}`;
+    let icon = p1Input[1].value;
+    if (icon == '') {
+        icon = "O";
+    }
+    p1Card.children[2].textContent = `Icon: ${icon}`;
+}
