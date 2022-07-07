@@ -778,17 +778,17 @@ const modalListener = () => {
     const modal = () => {
         modalContainer.style.display = "block";
     }
-    const pvpbtn = p1Modal.children[4].children[1];
+    const pvpbtn = p1Modal.children[3].children[1];
     const pvpFn = () => {
         console.log('pvp mode!')
     }
     pvpbtn.addEventListener('click', pvpFn);
-    const easybtn = p1Modal.children[4].children[2];
+    const easybtn = p1Modal.children[3].children[2];
     const easyFn = () => {
         console.log('easy mode!')
     }
     easybtn.addEventListener('click', easyFn);
-    const expertbtn = p1Modal.children[4].children[3];
+    const expertbtn = p1Modal.children[3].children[3];
     const expertFn = () => {
         console.log('expert mode!');
     }

@@ -12,17 +12,23 @@
     <div class="main">
         <div class="modalContainer">
             <div class="p1">
-                <h1>PLAYER ONE</h1>
-                <div class="start">Get Started!</div>
+                <h1 class="modalh1">TICTACTOE</h1>
                 <div class="name">
                     <label for="name">Enter Your Name:</label> 
+                    <br>
                     <input type="text" class="p1Name" name="name" placeholder="Player One">
-                    <br>
                 </div>
-                <div class="icon">
-                    <label for="icon">Select Your Icon:</label> 
-                    <input type="text" class="p1Icon" name="icon" placeholder="O">
+                <div class="marker">
+                    <div class="marker">Select Your Marker:</div>
                     <br>
+                    <div class="markerOptions">
+                        <input type="radio" name="marker" id="O" value="0"><label for="O"><img id="marker" src="img/alpha-o.png"></label></input>
+                        <input type="radio" name="marker" id="flash" value="1"><label for="flash"><img id="marker" src="img/flash.png"></label></input>
+                        <input type="radio" name="marker" id="flex" value="2"><label for="flex"><img id="marker" src="img/arm-flex.png"></label></input>
+                        <input type="radio" name="marker" id="pumpkin" value="3"><label for="pumpkin"><img id="marker" src="img/halloween.png"></label></input>
+                        <input type="radio" name="marker" id="peace" value="4"><label for="peace"><img id="marker" src="img/hand-peace-variant.png"></label></input>
+                        <input type="radio" name="marker" id="shark" value="5"><label for="shark"><img id="marker" src="img/shark.png"></label></input>
+                    </div>
                 </div>
                 <div class="gameMode">
                     <div class="options">Choose Your Game Mode</div>
