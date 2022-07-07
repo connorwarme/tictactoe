@@ -587,8 +587,8 @@ const grid = (() => {
     return { newClickFunction, displayBoard, reset, create, };
 })();
 // create players with factory function, return their name and marker
-const playerFactory = (name, icon, wins) => {
-    return {name, icon, wins};
+const playerFactory = (name, icon, marker, wins) => {
+    return {name, icon, marker, wins};
 }
 const playerH = playerFactory("player", "O", 0);
 const playerAI = playerFactory("AI", "X", 0);
@@ -765,10 +765,12 @@ const game = (() => {
 // modal (on initialization)
 // -> add name, choose icon, select game mode
 // -> if PvP, open section of form for second player name and icon
+let p1;
+let p2;
 const modalContainer = document.querySelector('div.modalContainer');
 const modals = Array.from(modalContainer.children);
 const p1Modal = modals[0];
-const p2Modal = modals[1];
+const p2Modal = p1Modal.children[4];
 const modalListener = () => {
     document.addEventListener("DOMContentLoaded", function() {
         setTimeout(function() {
@@ -780,7 +782,8 @@ const modalListener = () => {
     }
     const pvpbtn = p1Modal.children[3].children[1];
     const pvpFn = () => {
-        console.log('pvp mode!')
+        p1Modal.classList.add('extended');
+        p2Modal.style.display = "grid";
     }
     pvpbtn.addEventListener('click', pvpFn);
     const easybtn = p1Modal.children[3].children[2];
@@ -795,16 +798,76 @@ const modalListener = () => {
     expertbtn.addEventListener('click', expertFn);
 }
 modalListener();
-const p1Input = [p1Modal.children[2].children[1], p1Modal.children[3].children[1]];
-const uploadP1 = () => {
-    let name = p1Input[0].value;
-    if (name == '') {
-        name = "Player One";
+const p1Input = (() => {
+    const marker = p1Modal.children[2];
+    const radioBtns = Array.from(marker.querySelectorAll('input'));
+    const radioSelection = () => {
+        let radio;
+        for (const radioBtn of radioBtns) {
+            if (radioBtn.checked) {
+                radio = radioBtn.value;
+                break;
+            }
+        }
+        return radio
     }
-    p1Card.children[1].textContent = `Name: ${name}`;
-    let icon = p1Input[1].value;
-    if (icon == '') {
-        icon = "O";
+    const markerDisplay = (location, marker) => {
+        let selection = document.createElement('img');
+        selection.classList.add('marker');
+        selection.src = p1Input.radioBtns[marker].nextSibling.firstChild.src;
+        location.appendChild(selection)
     }
-    p1Card.children[2].textContent = `Icon: ${icon}`;
+    const uploadP1 = () => {
+        let name = p1Modal.children[1].children[2].value;
+        if (name == '') {
+            name = "Player One";
+        }
+        p1Card.children[1].textContent = `Name: ${name}`;
+        let labelLocation = p1Card.children[2];
+        let marker = radioBtns[radioSelection()].value;
+        markerDisplay(labelLocation, marker);
+        p1 = playerFactory(name, "O", marker, 0);
+        return p1;
+    }
+return { uploadP1, radioBtns, markerDisplay }
+})();
+const p2Input = (() => {
+    const radioBtns = Array.from(p1Modal.children[4].children[1].querySelectorAll('input'));
+    const radioSelection = () => {
+        let radio;
+        for (const radioBtn of radioBtns) {
+            if (radioBtn.checked) {
+                radio = radioBtn.value;
+                break;
+            }
+        }
+        return radio
+    }
+    const uploadP2 = () => {
+        let name = p1Modal.children[4].children[0].children[2].value;
+        if (name == '') {
+            name = "Player Two";
+        }
+        p2Card.children[1].textContent = `Name: ${name}`;
+        let marker = radioBtns[radioSelection()].value;
+        if (marker > 0 && marker === p1.marker) {
+            alert('Cannot be the same as Player One!')
+        } else {
+            let labelLocation = p2Card.children[2];
+            p1Input.markerDisplay(labelLocation, marker);
+            p2 = playerFactory(name, "X", marker, 0);
+            return p2;
+        }
+    }
+return { uploadP2 }
+})();
+const startListener = () => {
+    const startbtn = p1Modal.children[4].children[2].children[0];
+    const startFn = () => {
+        p1Input.uploadP1();
+        p2Input.uploadP2();
+        modalContainer.style.display = "none";
+    }
+    startbtn.addEventListener('click', startFn)
 }
+startListener();

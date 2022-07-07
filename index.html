@@ -22,12 +22,12 @@
                     <div class="marker">Select Your Marker:</div>
                     <br>
                     <div class="markerOptions">
-                        <input type="radio" name="marker" id="O" value="0"><label for="O"><img id="marker" src="img/alpha-o.png"></label></input>
-                        <input type="radio" name="marker" id="flash" value="1"><label for="flash"><img id="marker" src="img/flash.png"></label></input>
-                        <input type="radio" name="marker" id="flex" value="2"><label for="flex"><img id="marker" src="img/arm-flex.png"></label></input>
-                        <input type="radio" name="marker" id="pumpkin" value="3"><label for="pumpkin"><img id="marker" src="img/halloween.png"></label></input>
-                        <input type="radio" name="marker" id="peace" value="4"><label for="peace"><img id="marker" src="img/hand-peace-variant.png"></label></input>
-                        <input type="radio" name="marker" id="shark" value="5"><label for="shark"><img id="marker" src="img/shark.png"></label></input>
+                        <input type="radio" name="marker" id="O" value="0" checked><label for="O"><img src="img/alpha-o.png"></label></input>
+                        <input type="radio" name="marker" id="flash" value="1"><label for="flash"><img src="img/flash.png"></label></input>
+                        <input type="radio" name="marker" id="flex" value="2"><label for="flex"><img src="img/arm-flex.png"></label></input>
+                        <input type="radio" name="marker" id="pumpkin" value="3"><label for="pumpkin"><img src="img/halloween.png"></label></input>
+                        <input type="radio" name="marker" id="peace" value="4"><label for="peace"><img src="img/hand-peace-variant.png"></label></input>
+                        <input type="radio" name="marker" id="shark" value="5"><label for="shark"><img src="img/shark.png"></label></input>
                     </div>
                 </div>
                 <div class="gameMode">
@@ -36,16 +36,27 @@
                     <input type="button" class="easyAI" value="easyAI">
                     <input type="button" class="expertAI" value="expertAI">
                 </div>
-            </div>
-            <div class="p2">
-                <h1>PLAYER TWO</h1>
-                <div class="name">
-                    <label for="name">Name:</label> 
-                    <input type="text" id="name" name="name" placeholder="Player Two">
-                </div>
-                <div class="icon">
-                    <label for="icon">Icon:</label> 
-                    <input type="text" id="icon" name="icon">
+                <div class="p2">
+                    <div class="p2name">
+                        <label for="name">Second Player Name:</label> 
+                        <br>
+                        <input type="text" id="name" name="name" placeholder="Player Two">
+                    </div>
+                    <div class="p2marker">
+                        <div class="p2marker">Second Player Marker:</div>
+                        <br>
+                    <div class="p2markerOptions">
+                        <input type="radio" name="icon" id="X" value="0" checked><label for="X"><img src="img/alpha-x.png"></label></input>
+                        <input type="radio" name="icon" id="flashy" value="1"><label for="flashy"><img src="img/flash.png"></label></input>
+                        <input type="radio" name="icon" id="flexy" value="2"><label for="flexy"><img src="img/arm-flex.png"></label></input>
+                        <input type="radio" name="icon" id="pumpkiny" value="3"><label for="pumpkiny"><img src="img/halloween.png"></label></input>
+                        <input type="radio" name="icon" id="peacey" value="4"><label for="peacey"><img src="img/hand-peace-variant.png"></label></input>
+                        <input type="radio" name="icon" id="sharky" value="5"><label for="sharky"><img src="img/shark.png"></label></input>
+                    </div>
+                    </div>
+                    <div class="startContainer">
+                        <button class="start">Start!</button>
+                    </div>
                 </div>
             </div>
         </div>
@@ -55,8 +66,7 @@
                 <div class="name">Name:
                     <div class="nameDisplay"></div>
                 </div>
-                <div class="icon">Icon:
-                    <div class="iconDisplay"></div>
+                <div class="markerDisplay">Marker: 
                 </div>
                 <div class="wins">Wins:
                     <div class="winsTally"></div>
@@ -68,8 +78,7 @@
                 <div class="name">Name:
                     <div class="nameDisplay"></div>
                 </div>
-                <div class="icon">Icon:
-                    <div class="iconDisplay"></div>
+                <div class="markerDisplay">Marker: 
                 </div>
                 <div class="wins">Wins:
                     <div class="winsTally"></div>
