@@ -625,6 +625,7 @@ const game = (() => {
                 console.log('fire');
             } else {
             alternateTurn();
+            turnDisplay();
             }
         }
     }
@@ -643,6 +644,7 @@ const game = (() => {
     // can set up a currentClass function (for PvP version) that lets x go for its turn, otherwise o goes
     const alternateTurn = () => {
         circleTurn = !circleTurn;
+        console.log('alternateTurn');
     }
     // generate random move for AI:
     // -> checks for available moves
@@ -760,7 +762,22 @@ const game = (() => {
         }
         circleTurn = false;
     }
-    return { turn, basicMoveAI, advancedMoveAI, restart }
+    const turnDisplay = () => {
+        let turn = scoreboard[1].children[1].children[1];
+        let reverseArrow = scoreboard[1].children[1].children[0];
+        let arrow = scoreboard[1].children[1].children[2];
+        if (!circleTurn) {
+            console.log(circleTurn);
+            turn.textContent = `${playerAI.name}'s Turn`;
+            reverseArrow.style.display = "none";
+            arrow.style.display = "block";
+        } else {
+            turn.textContent = `${playerH.name}'s Turn`;
+            reverseArrow.style.display = "block";
+            arrow.style.display = "none";
+        }
+    }
+    return { turn, basicMoveAI, advancedMoveAI, restart, circleTurn, turnDisplay }
 })();
 // modal (on initialization)
 // -> add name, choose icon, select game mode
@@ -788,12 +805,14 @@ const modalListener = () => {
     pvpbtn.addEventListener('click', pvpFn);
     const easybtn = p1Modal.children[3].children[2];
     const easyFn = () => {
-        console.log('easy mode!')
+        console.log('easy mode!');
+        p1Input.computer("Easy AI");
     }
     easybtn.addEventListener('click', easyFn);
     const expertbtn = p1Modal.children[3].children[3];
     const expertFn = () => {
         console.log('expert mode!');
+        p1Input.computer("Expert AI");
     }
     expertbtn.addEventListener('click', expertFn);
 }
@@ -801,21 +820,25 @@ modalListener();
 const p1Input = (() => {
     const marker = p1Modal.children[2];
     const radioBtns = Array.from(marker.querySelectorAll('input'));
-    const radioSelection = () => {
+    const radioSelection = (input) => {
         let radio;
-        for (const radioBtn of radioBtns) {
+        for (const radioBtn of input) {
             if (radioBtn.checked) {
                 radio = radioBtn.value;
                 break;
             }
         }
-        return radio
+        return radio;
     }
     const markerDisplay = (location, marker) => {
+        if (location.children.length > 0) {
+            console.log('already there?')
+        } else {
         let selection = document.createElement('img');
         selection.classList.add('marker');
-        selection.src = p1Input.radioBtns[marker].nextSibling.firstChild.src;
+        selection.src = marker.src;
         location.appendChild(selection);
+        }
     }
     const uploadP1 = () => {
         let name = p1Modal.children[1].children[2].value;
@@ -824,56 +847,65 @@ const p1Input = (() => {
         }
         p1Card.children[1].children[0].textContent = ` ${name}`;
         let labelLocation = p1Card.children[2];
-        let marker = radioBtns[radioSelection()].value;
+        let marker = {};
+        marker.value = radioSelection(radioBtns);
+        marker.src = radioBtns[marker.value].nextSibling.firstChild.src;
         markerDisplay(labelLocation, marker);
         p1 = playerFactory(name, "O", marker, 0);
         return p1;
     }
-return { uploadP1, radioBtns, markerDisplay }
+    const clearInput = () => {
+        p1Modal.children[1].children[2].value = "";
+        radioBtns[0].checked = true;
+    }
+    const computer = (input) => {
+        uploadP1();
+        let name = input;
+        let marker = {
+            value: "0",
+            src: "file:///home/peregrinning/Documents/Coding/TOP/tictactoe/img/alpha-x.png"
+        }
+        p2 = playerFactory(name, "X", marker, 0);
+        p2Card.children[1].children[0].textContent = ` ${name}`;
+        markerDisplay(p2Card.children[2], marker);
+        modalContainer.style.display = "none";
+    }
+return { uploadP1, radioSelection, radioBtns, markerDisplay, clearInput, computer }
 })();
 const p2Input = (() => {
     const radioBtns = Array.from(p1Modal.children[4].children[1].querySelectorAll('input'));
-    const radioSelection = () => {
-        let radio;
-        for (const radioBtn of radioBtns) {
-            if (radioBtn.checked) {
-                radio = radioBtn.value;
-                break;
-            }
-        }
-        return radio
-    }
     const uploadP2 = () => {
         let name = p1Modal.children[4].children[0].children[2].value;
         if (name == '') {
             name = "Player Two";
         }
         p2Card.children[1].children[0].textContent = ` ${name}`;
-        let marker = radioBtns[radioSelection()].value;
-        if (marker > 0 && marker === p1.marker) {
+        let marker = {};
+        marker.value = p1Input.radioSelection(radioBtns);
+        if (marker.value > 0 && marker.value === p1.marker.value) {
             alert('Cannot be the same as Player One!')
         } else {
+            marker.src = radioBtns[marker.value].nextSibling.firstChild.src;
             let labelLocation = p2Card.children[2];
-            if (marker == 0) {
-            let selection = document.createElement('img');
-            selection.classList.add('marker');
-            selection.src = radioBtns[marker].nextSibling.firstChild.src;
-            labelLocation.appendChild(selection);
-            } else {
             p1Input.markerDisplay(labelLocation, marker);
-            }
             p2 = playerFactory(name, "X", marker, 0);
             return p2;
         }
     }
-return { uploadP2 }
+    const clearInput = () => {
+        p1Modal.children[4].children[0].children[2].value = "";
+        radioBtns[0].checked = true;
+    }
+return { uploadP2, clearInput }
 })();
 const startListener = () => {
     const startbtn = p1Modal.children[4].children[2].children[0];
     const startFn = () => {
         p1Input.uploadP1();
-        p2Input.uploadP2();
-        modalContainer.style.display = "none";
+        if (p2Input.uploadP2()) {
+            modalContainer.style.display = "none";
+            game.turnDisplay();
+        };
     }
     startbtn.addEventListener('click', startFn)
 }
