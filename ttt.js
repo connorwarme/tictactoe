@@ -638,12 +638,10 @@ const game = (() => {
         if (winCheck(board, player)) {
             let message = `${player.name} wins!`;
             winDisplay(message);
-            winsTally(player);
-            console.log(`${player.name} wins!`);
+            winsTally(player);;
             return true;
         } else if (checkPossibleMoves(board).length == 0) {
             winDisplay("It's a draw!");
-            console.log(`It's a draw!`);
             return true;
         } else {
             return false;
@@ -662,7 +660,6 @@ const game = (() => {
     // can set up a currentClass function (for PvP version) that lets x go for its turn, otherwise o goes
     const alternateTurn = () => {
         circleTurn = !circleTurn;
-        console.log('alternateTurn');
     }
     // generate random move for AI:
     // -> checks for available moves
@@ -761,7 +758,6 @@ const game = (() => {
         ]
         return winningCombos.some(combination => {
             if (combination.every(index => {return gameBoard[index] === (name.icon)})) {
-                console.log(combination);
                 game.winningArray = combination;
                 return true;
             }
@@ -841,14 +837,12 @@ const modalListener = () => {
     pvpbtn.addEventListener('click', pvpFn);
     const easybtn = p1Modal.children[3].children[2];
     const easyFn = () => {
-        console.log('easy mode!');
         p1Input.computer("Easy AI");
         game.checkAI(game.p2);
     }
     easybtn.addEventListener('click', easyFn);
     const expertbtn = p1Modal.children[3].children[3];
     const expertFn = () => {
-        console.log('expert mode!');
         p1Input.computer("Expert AI");
         game.checkAI(game.p2);
     }
@@ -869,9 +863,7 @@ const p1Input = (() => {
         return radio;
     }
     const markerDisplay = (location, marker) => {
-        if (location.children.length > 0) {
-            console.log('already there?')
-        } else {
+        if (location.children.length == 0) {
         let selection = document.createElement('img');
         selection.classList.add('marker');
         selection.src = marker.src;

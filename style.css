@@ -141,7 +141,7 @@
     position: relative;
     top: 20%;
     left: 25%;
-    font-family: "Bebas Neue";
+    font-family: "Merriweather", Georgia;
     font-size: 18px;
 }
 .p1 > .nameModal,
@@ -163,6 +163,7 @@
 .nameModal > input,
 .p2name > input {
     height: 35px;
+    width: 225px;
     background-color: rgb(235, 235, 235);
     border: 1px solid black;
     border-radius: 10px;
@@ -195,6 +196,7 @@
     border: 2px solid black;
     border-radius: 10px;
     background-color:  rgb(235, 235, 235);
+    transition-duration: 100ms;
 }
 .markerOptions > label,
 .p2markerOptions > label {
@@ -206,6 +208,7 @@
 .p2markerOptions > label > img {
     height: 54px;
     width: 54px;
+    transition-duration: 100ms;
 }
 .markerOptions > input:hover,
 .markerOptions > label > img:hover,
@@ -213,6 +216,7 @@
 .p2markerOptions > label > img:hover {
     filter: invert(100%);
     border-radius: 10px;
+    cursor: pointer;
 }
 .markerOptions > input:checked,
 .p2markerOptions > input:checked {
@@ -222,7 +226,7 @@
     text-align: center;
 }
 .gameMode > input {
-    width: 100px;
+    width: 150px;
     height: 50px;
     border: 2px solid black;
     border-radius: 15px;
@@ -231,27 +235,36 @@
     font-weight: bold;
     font-family: "Bangers";
     font-size: 24px;
+    transition-duration: 250ms;
+}
+.gameMode > input:hover {
+    transform: scale(1.1);
+    cursor: pointer;
 }
 .p2 {
     display: none;
     grid-row: 5/8;
     grid-template-rows: repeat(3, 1fr);
     place-content: center;
-    height: calc(85vh / 3);
 } 
 .p2name {
-    margin: 2% 0 0 0;
+    grid-row: 1/2;
+    margin: 2% 0 2% 0;
+} .p2name > input {
+    margin-bottom: 8px;
 }
 .p2marker {
+    grid-row: 2/3;
     margin: 2% 0 3.5px 0;
 }
 .startContainer {
-    height: calc((85vh / 3) / 3);
+    grid-row: 3/4;
     display: flex;
-    place-content: center;
+    justify-content: center;
+    align-items: center;
 }
 .startContainer > button {
-    width: 100px;
+    width: 150px;
     height: 50px;
     border: 2px solid black;
     border-radius: 15px;
@@ -259,6 +272,11 @@
     background-color:  rgb(235, 235, 235);
     font-family: "Bangers";
     font-size: 24px;
+    transition-duration: 250ms;
+}
+.startContainer > button:hover {
+    transform: scale(1.2);
+    cursor: pointer;
 }
 .extended {
     display: grid;
