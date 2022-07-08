@@ -584,7 +584,7 @@ const grid = (() => {
         }
     }
     create();
-    return { newClickFunction, displayBoard, reset, create, };
+    return { newClickFunction, displayBoard, reset, create };
 })();
 // create players with factory function, return their name and marker
 const playerFactory = (name, icon, marker, wins) => {
@@ -593,6 +593,8 @@ const playerFactory = (name, icon, marker, wins) => {
 const playerH = playerFactory("player", "O", 0);
 const playerAI = playerFactory("AI", "X", 0);
 const game = (() => {
+    let p1;
+    let p2;
     let circleTurn = false;
     // const currentClass = circleTurn ? playerH : playerAI;
     // turn for player (and for PvP)
@@ -607,18 +609,18 @@ const game = (() => {
                 turn(0);
             } else {
                 console.log('fire');
-            turn(minimax(board, playerAI).index);
+            turn(minimax(board, game.p2).index);
             }
         }
     }
     const turn = (input) => {
         const cellArray = Array.from(document.querySelectorAll('div.cell'));
-        const currentPlayer = circleTurn ? playerH : playerAI;
+        const currentPlayer = circleTurn ? game.p1 : game.p2;
         if (check(input) == -1) {
             alert('Please choose an empty square!')
         } else {
             board[input] = currentPlayer.icon;
-            cellArray[input].textContent = `${currentPlayer.icon}`;
+            p1Input.markerDisplay(cellArray[input], currentPlayer.marker)
             console.log(currentPlayer.icon);
             if (terminalState(board, currentPlayer)) {
                 // display endgame message
@@ -626,18 +628,34 @@ const game = (() => {
             } else {
             alternateTurn();
             turnDisplay();
+            if (checkAI(game.p2)) {
+                console.log('working?');
+            }
             }
         }
     }
     const terminalState = (board, player) => {
         if (winCheck(board, player)) {
+            let message = `${player.name} wins!`;
+            winDisplay(message);
+            winsTally(player);
             console.log(`${player.name} wins!`);
             return true;
         } else if (checkPossibleMoves(board).length == 0) {
+            winDisplay("It's a draw!");
             console.log(`It's a draw!`);
             return true;
         } else {
             return false;
+        }
+    }
+    const winsTally = (player) => {
+        player.wins++;
+        p1Card.children[3].children[0].textContent = `${game.p1.wins}`;
+        p2Card.children[3].children[0].textContent = `${game.p2.wins}`;
+        for (i=0; i<game.winningArray.length; i++) {
+            let winningCell = document.getElementById(`${game.winningArray[i]}`);
+            winningCell.classList.add('winningCell');
         }
     }
     // alternate player turns
@@ -662,9 +680,9 @@ const game = (() => {
     // ->
     function minimax(gameBoard, player) {
         const possibleMoves = checkPossibleMoves(gameBoard);
-        if (winCheck(gameBoard, playerH)) {
+        if (winning(gameBoard, game.p1)) {
             return {score: -1};
-        } else if (winCheck(gameBoard, playerAI)) {
+        } else if (winning(gameBoard, game.p2)) {
             return {score: 1};
         } else if (possibleMoves.length === 0) {
             return {score: 0};
@@ -674,11 +692,11 @@ const game = (() => {
             const move = {};
             move.index = gameBoard[possibleMoves[i]];
             gameBoard[possibleMoves[i]] = player.icon;
-            if (player === playerAI) {
-                const result = minimax(gameBoard, playerH);
+            if (player === game.p2) {
+                const result = minimax(gameBoard, game.p1);
                 move.score = result.score;
             } else {
-                const result = minimax(gameBoard, playerAI);
+                const result = minimax(gameBoard, game.p2);
                 move.score = result.score; 
             }
             gameBoard[possibleMoves[i]] = move.index;
@@ -686,7 +704,7 @@ const game = (() => {
             console.log(move);
         }
         let bestMove = null;
-        if (player === playerAI) {
+        if (player === game.p2) {
             let maxEval = -Infinity;
             for (i=0; i<moves.length; i++) {
                 if (moves[i].score > maxEval) {
@@ -729,6 +747,7 @@ const game = (() => {
     // alternate utility function:
     // faster?
     // not 100% that it works. still testing. remember to change in minimax fn.
+    let winningArray;
     const winCheck = (gameBoard, name) => {
         const winningCombos = [
             [0, 1, 2],
@@ -741,9 +760,11 @@ const game = (() => {
             [2, 4, 6],
         ]
         return winningCombos.some(combination => {
-            return combination.every(index => {
-                return gameBoard[index] === (name.icon)
-                })
+            if (combination.every(index => {return gameBoard[index] === (name.icon)})) {
+                console.log(combination);
+                game.winningArray = combination;
+                return true;
+            }
         })
     }
     const check = (id) => {
@@ -762,28 +783,43 @@ const game = (() => {
         }
         circleTurn = false;
     }
+    const checkAI = (input) => {
+        if (input.name === "Easy AI") {
+            basicMoveAI();
+        } else if (input.name === "Expert AI") {
+            advancedMoveAI();
+        } else {
+            return false;
+        }
+    }
     const turnDisplay = () => {
         let turn = scoreboard[1].children[1].children[1];
         let reverseArrow = scoreboard[1].children[1].children[0];
         let arrow = scoreboard[1].children[1].children[2];
         if (!circleTurn) {
             console.log(circleTurn);
-            turn.textContent = `${playerAI.name}'s Turn`;
+            turn.textContent = `${game.p2.name}'s Turn`;
             reverseArrow.style.display = "none";
             arrow.style.display = "block";
         } else {
-            turn.textContent = `${playerH.name}'s Turn`;
+            turn.textContent = `${game.p1.name}'s Turn`;
             reverseArrow.style.display = "block";
             arrow.style.display = "none";
         }
     }
-    return { turn, basicMoveAI, advancedMoveAI, restart, circleTurn, turnDisplay }
+    const winDisplay = (input) => {
+        const turnContainer = scoreboard[1].children[1];
+        turnContainer.style.display = "none";
+        const winningContainer = scoreboard[1].children[2];
+        winningContainer.style.display = "flex";
+        winningContainer.children[0].textContent = `${input}`;
+        
+    }
+    return { turn, basicMoveAI, advancedMoveAI, restart, circleTurn, turnDisplay, p1, p2, winningArray, checkAI }
 })();
 // modal (on initialization)
 // -> add name, choose icon, select game mode
 // -> if PvP, open section of form for second player name and icon
-let p1;
-let p2;
 const modalContainer = document.querySelector('div.modalContainer');
 const modals = Array.from(modalContainer.children);
 const p1Modal = modals[0];
@@ -807,12 +843,14 @@ const modalListener = () => {
     const easyFn = () => {
         console.log('easy mode!');
         p1Input.computer("Easy AI");
+        game.checkAI(game.p2);
     }
     easybtn.addEventListener('click', easyFn);
     const expertbtn = p1Modal.children[3].children[3];
     const expertFn = () => {
         console.log('expert mode!');
         p1Input.computer("Expert AI");
+        game.checkAI(game.p2);
     }
     expertbtn.addEventListener('click', expertFn);
 }
@@ -851,8 +889,9 @@ const p1Input = (() => {
         marker.value = radioSelection(radioBtns);
         marker.src = radioBtns[marker.value].nextSibling.firstChild.src;
         markerDisplay(labelLocation, marker);
-        p1 = playerFactory(name, "O", marker, 0);
-        return p1;
+        game.p1 = playerFactory(name, "O", marker, 0);
+        p1Card.children[3].children[0].textContent = `${game.p1.wins}`;
+        return game.p1;
     }
     const clearInput = () => {
         p1Modal.children[1].children[2].value = "";
@@ -865,9 +904,10 @@ const p1Input = (() => {
             value: "0",
             src: "file:///home/peregrinning/Documents/Coding/TOP/tictactoe/img/alpha-x.png"
         }
-        p2 = playerFactory(name, "X", marker, 0);
+        game.p2 = playerFactory(name, "X", marker, 0);
         p2Card.children[1].children[0].textContent = ` ${name}`;
         markerDisplay(p2Card.children[2], marker);
+        p2Card.children[3].children[0].textContent = `${game.p2.wins}`;
         modalContainer.style.display = "none";
     }
 return { uploadP1, radioSelection, radioBtns, markerDisplay, clearInput, computer }
@@ -882,15 +922,16 @@ const p2Input = (() => {
         p2Card.children[1].children[0].textContent = ` ${name}`;
         let marker = {};
         marker.value = p1Input.radioSelection(radioBtns);
-        if (marker.value > 0 && marker.value === p1.marker.value) {
+        if (marker.value > 0 && marker.value === game.p1.marker.value) {
             alert('Cannot be the same as Player One!')
         } else {
             marker.src = radioBtns[marker.value].nextSibling.firstChild.src;
             let labelLocation = p2Card.children[2];
             p1Input.markerDisplay(labelLocation, marker);
-            p2 = playerFactory(name, "X", marker, 0);
-            return p2;
-        }
+            game.p2 = playerFactory(name, "X", marker, 0);
+            p2Card.children[3].children[0].textContent = `${game.p2.wins}`;
+            return game.p2;
+        }   
     }
     const clearInput = () => {
         p1Modal.children[4].children[0].children[2].value = "";
