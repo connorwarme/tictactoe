@@ -815,14 +815,14 @@ const p1Input = (() => {
         let selection = document.createElement('img');
         selection.classList.add('marker');
         selection.src = p1Input.radioBtns[marker].nextSibling.firstChild.src;
-        location.appendChild(selection)
+        location.appendChild(selection);
     }
     const uploadP1 = () => {
         let name = p1Modal.children[1].children[2].value;
         if (name == '') {
             name = "Player One";
         }
-        p1Card.children[1].textContent = `Name: ${name}`;
+        p1Card.children[1].children[0].textContent = ` ${name}`;
         let labelLocation = p1Card.children[2];
         let marker = radioBtns[radioSelection()].value;
         markerDisplay(labelLocation, marker);
@@ -848,13 +848,20 @@ const p2Input = (() => {
         if (name == '') {
             name = "Player Two";
         }
-        p2Card.children[1].textContent = `Name: ${name}`;
+        p2Card.children[1].children[0].textContent = ` ${name}`;
         let marker = radioBtns[radioSelection()].value;
         if (marker > 0 && marker === p1.marker) {
             alert('Cannot be the same as Player One!')
         } else {
             let labelLocation = p2Card.children[2];
+            if (marker == 0) {
+            let selection = document.createElement('img');
+            selection.classList.add('marker');
+            selection.src = radioBtns[marker].nextSibling.firstChild.src;
+            labelLocation.appendChild(selection);
+            } else {
             p1Input.markerDisplay(labelLocation, marker);
+            }
             p2 = playerFactory(name, "X", marker, 0);
             return p2;
         }
