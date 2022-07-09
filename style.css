@@ -7,6 +7,7 @@
     display: grid;
     grid-template-columns: repeat(8, 1fr);
     background-color: rgb(202, 31, 31);
+    box-shadow: 10px 5px 5px black;
 }
 .p1Card,
 .p2Card {
@@ -358,6 +359,7 @@
     background-color: rgb(202, 31, 31);
     border: 2px solid black;
     border-radius: 25px;
+    box-shadow: 3px 3px 10px black;
     transition-duration: 150ms;
 }
 .rematchbtn > input:hover {

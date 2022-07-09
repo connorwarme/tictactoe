@@ -514,10 +514,10 @@ const turnSelectionIntoMove = (selection) => {
 // scoreboard:
 // -> player cards (name, marker, running score)
 // -> start button?
-const scoreboardContainer = document.querySelector('div.scoreboardContainer');
-const scoreboard = Array.from(scoreboardContainer.children);
-const p1Card = scoreboard[0];
-const p2Card = scoreboard[2];
+// const scoreboardContainer = document.querySelector('div.scoreboardContainer');
+// const scoreboard = Array.from(scoreboardContainer.children);
+// const p1Card = scoreboard[0];
+// const p2Card = scoreboard[2];
 // pCards.forEach(index => {
 //     const name = document.createElement('div');
 //     name.classList.add('name');
@@ -591,12 +591,6 @@ const grid = (() => {
     create();
     return { newClickFunction, displayBoard, removeListeners, reset, create };
 })();
-// create players with factory function, return their name and marker
-const playerFactory = (name, icon, marker, wins) => {
-    return {name, icon, marker, wins};
-}
-const playerH = playerFactory("player", "O", 0);
-const playerAI = playerFactory("AI", "X", 0);
 const game = (() => {
     let p1;
     let p2;
@@ -628,7 +622,7 @@ const game = (() => {
             alert('Please choose an empty square!')
         } else {
             game.board[input] = currentPlayer.icon;
-            p1Input.markerDisplay(cellArray[input], currentPlayer.marker)
+            main.p1Input.markerDisplay(cellArray[input], currentPlayer.marker)
             console.log(currentPlayer.icon);
             if (terminalState(game.board, currentPlayer)) {
                 grid.removeListeners();
@@ -656,8 +650,8 @@ const game = (() => {
     }
     const winsTally = (player) => {
         player.wins++;
-        p1Card.children[3].children[0].textContent = `${game.p1.wins}`;
-        p2Card.children[3].children[0].textContent = `${game.p2.wins}`;
+        main.p1Card.children[3].children[0].textContent = `${game.p1.wins}`;
+        main.p2Card.children[3].children[0].textContent = `${game.p2.wins}`;
         for (i=0; i<game.winningArray.length; i++) {
             let winningCell = document.getElementById(`${game.winningArray[i]}`);
             winningCell.classList.add('winningCell');
@@ -750,7 +744,7 @@ const game = (() => {
     }
     // alternate utility function:
     // faster?
-    // not 100% that it works. still testing. remember to change in minimax fn.
+    // not 100% that it works. still testing.
     let winningArray;
     const winCheck = (gameBoard, name) => {
         const winningCombos = [
@@ -798,10 +792,10 @@ const game = (() => {
         }
     }
     const turnDisplay = () => {
-        scoreboard[1].children[1].style.display = "grid";
-        let turn = scoreboard[1].children[1].children[1];
-        let reverseArrow = scoreboard[1].children[1].children[0];
-        let arrow = scoreboard[1].children[1].children[2];
+        main.scoreboard[1].children[1].style.display = "grid";
+        let turn = main.scoreboard[1].children[1].children[1];
+        let reverseArrow = main.scoreboard[1].children[1].children[0];
+        let arrow = main.scoreboard[1].children[1].children[2];
         if (!circleTurn) {
             console.log(circleTurn);
             turn.textContent = `${game.p2.name}'s Turn`;
@@ -814,9 +808,9 @@ const game = (() => {
         }
     }
     const winDisplay = (input) => {
-        const turnContainer = scoreboard[1].children[1];
+        const turnContainer = main.scoreboard[1].children[1];
         turnContainer.style.display = "none";
-        const winningContainer = scoreboard[1].children[2];
+        const winningContainer = main.scoreboard[1].children[2];
         winningContainer.style.display = "flex";
         winningContainer.children[0].textContent = `${input}`;
         
@@ -826,159 +820,170 @@ const game = (() => {
 // modal (on initialization)
 // -> add name, choose icon, select game mode
 // -> if PvP, open section of form for second player name and icon
-const modalContainer = document.querySelector('div.modalContainer');
-const modals = Array.from(modalContainer.children);
-const p1Modal = modals[0];
-const p2Modal = p1Modal.children[4];
-const modalListener = () => {
-    document.addEventListener("DOMContentLoaded", function() {
-        setTimeout(function() {
-            modal();
-        }, 1000);
-    })
-    const modal = () => {
-        modalContainer.style.display = "block";
+const main = (() => {
+    // create players with factory function, return their name and marker
+    const playerFactory = (name, icon, marker, wins) => {
+        return {name, icon, marker, wins};
     }
-    const pvpbtn = p1Modal.children[3].children[1];
-    const pvpFn = () => {
-        p1Modal.classList.add('extended');
-        p2Modal.style.display = "grid";
+    const scoreboardContainer = document.querySelector('div.scoreboardContainer');
+    const scoreboard = Array.from(scoreboardContainer.children);
+    const p1Card = scoreboard[0];
+    const p2Card = scoreboard[2];
+    const modalContainer = document.querySelector('div.modalContainer');
+    const modals = Array.from(modalContainer.children);
+    const p1Modal = modals[0];
+    const p2Modal = p1Modal.children[4];
+    const modalListener = () => {
+        document.addEventListener("DOMContentLoaded", function() {
+            setTimeout(function() {
+                modal();
+            }, 1000);
+        })
+        const modal = () => {
+            modalContainer.style.display = "block";
+        }
+        const pvpbtn = p1Modal.children[3].children[1];
+        const pvpFn = () => {
+            p1Modal.classList.add('extended');
+            p2Modal.style.display = "grid";
+        }
+        pvpbtn.addEventListener('click', pvpFn);
+        const easybtn = p1Modal.children[3].children[2];
+        const easyFn = () => {
+            p1Input.computer("Easy AI");
+            game.turnDisplay();
+            game.checkAI(game.p2);
+        }
+        easybtn.addEventListener('click', easyFn);
+        const expertbtn = p1Modal.children[3].children[3];
+        const expertFn = () => {
+            p1Input.computer("Expert AI");
+            game.turnDisplay();
+            game.checkAI(game.p2);
+        }
+        expertbtn.addEventListener('click', expertFn);
     }
-    pvpbtn.addEventListener('click', pvpFn);
-    const easybtn = p1Modal.children[3].children[2];
-    const easyFn = () => {
-        p1Input.computer("Easy AI");
-        game.turnDisplay();
-        game.checkAI(game.p2);
-    }
-    easybtn.addEventListener('click', easyFn);
-    const expertbtn = p1Modal.children[3].children[3];
-    const expertFn = () => {
-        p1Input.computer("Expert AI");
-        game.turnDisplay();
-        game.checkAI(game.p2);
-    }
-    expertbtn.addEventListener('click', expertFn);
-}
-modalListener();
-const p1Input = (() => {
-    const marker = p1Modal.children[2];
-    const radioBtns = Array.from(marker.querySelectorAll('input'));
-    const radioSelection = (input) => {
-        let radio;
-        for (const radioBtn of input) {
-            if (radioBtn.checked) {
-                radio = radioBtn.value;
-                break;
+    modalListener();
+    const p1Input = (() => {
+        const marker = p1Modal.children[2];
+        const radioBtns = Array.from(marker.querySelectorAll('input'));
+        const radioSelection = (input) => {
+            let radio;
+            for (const radioBtn of input) {
+                if (radioBtn.checked) {
+                    radio = radioBtn.value;
+                    break;
+                }
+            }
+            return radio;
+        }
+        const markerDisplay = (location, marker) => {
+            if (location.children.length == 0) {
+            let selection = document.createElement('img');
+            selection.classList.add('marker');
+            selection.src = marker.src;
+            location.appendChild(selection);
             }
         }
-        return radio;
-    }
-    const markerDisplay = (location, marker) => {
-        if (location.children.length == 0) {
-        let selection = document.createElement('img');
-        selection.classList.add('marker');
-        selection.src = marker.src;
-        location.appendChild(selection);
-        }
-    }
-    const uploadP1 = () => {
-        let name = p1Modal.children[1].children[2].value;
-        if (name == '') {
-            name = "Player One";
-        }
-        p1Card.children[1].children[0].textContent = ` ${name}`;
-        let labelLocation = p1Card.children[2];
-        let marker = {};
-        marker.value = radioSelection(radioBtns);
-        marker.src = radioBtns[marker.value].nextSibling.firstChild.src;
-        markerDisplay(labelLocation, marker);
-        game.p1 = playerFactory(name, "O", marker, 0);
-        p1Card.children[3].children[0].textContent = `${game.p1.wins}`;
-        return game.p1;
-    }
-    const clearInput = () => {
-        p1Modal.children[1].children[2].value = "";
-        radioBtns[0].checked = true;
-    }
-    const computer = (input) => {
-        uploadP1();
-        let name = input;
-        let marker = {
-            value: "0",
-            src: "file:///home/peregrinning/Documents/Coding/TOP/tictactoe/img/alpha-x.png"
-        }
-        game.p2 = playerFactory(name, "X", marker, 0);
-        p2Card.children[1].children[0].textContent = ` ${name}`;
-        markerDisplay(p2Card.children[2], marker);
-        p2Card.children[3].children[0].textContent = `${game.p2.wins}`;
-        modalContainer.style.display = "none";
-    }
-return { uploadP1, radioSelection, radioBtns, markerDisplay, clearInput, computer }
-})();
-const p2Input = (() => {
-    const radioBtns = Array.from(p1Modal.children[4].children[1].querySelectorAll('input'));
-    const uploadP2 = () => {
-        let name = p1Modal.children[4].children[0].children[2].value;
-        if (name == '') {
-            name = "Player Two";
-        }
-        p2Card.children[1].children[0].textContent = ` ${name}`;
-        let marker = {};
-        marker.value = p1Input.radioSelection(radioBtns);
-        if (marker.value > 0 && marker.value === game.p1.marker.value) {
-            alert('Cannot be the same as Player One!')
-        } else {
+        const uploadP1 = () => {
+            let name = p1Modal.children[1].children[2].value;
+            if (name == '') {
+                name = "Player One";
+            }
+            p1Card.children[1].children[0].textContent = ` ${name}`;
+            let labelLocation = p1Card.children[2];
+            let marker = {};
+            marker.value = radioSelection(radioBtns);
             marker.src = radioBtns[marker.value].nextSibling.firstChild.src;
-            let labelLocation = p2Card.children[2];
-            p1Input.markerDisplay(labelLocation, marker);
+            markerDisplay(labelLocation, marker);
+            game.p1 = playerFactory(name, "O", marker, 0);
+            p1Card.children[3].children[0].textContent = `${game.p1.wins}`;
+            return game.p1;
+        }
+        const clearInput = () => {
+            p1Modal.children[1].children[2].value = "";
+            radioBtns[0].checked = true;
+        }
+        const computer = (input) => {
+            uploadP1();
+            let name = input;
+            let marker = {
+                value: "0",
+                src: "file:///home/peregrinning/Documents/Coding/TOP/tictactoe/img/alpha-x.png"
+            }
             game.p2 = playerFactory(name, "X", marker, 0);
+            p2Card.children[1].children[0].textContent = ` ${name}`;
+            markerDisplay(p2Card.children[2], marker);
             p2Card.children[3].children[0].textContent = `${game.p2.wins}`;
-            return game.p2;
-        }   
-    }
-    const clearInput = () => {
-        p1Modal.children[4].children[0].children[2].value = "";
-        radioBtns[0].checked = true;
-    }
-return { uploadP2, clearInput }
-})();
-const startListener = () => {
-    const startbtn = p1Modal.children[4].children[2].children[0];
-    const startFn = () => {
-        p1Input.uploadP1();
-        if (p2Input.uploadP2()) {
             modalContainer.style.display = "none";
+        }
+    return { uploadP1, radioSelection, radioBtns, markerDisplay, clearInput, computer }
+    })();
+    const p2Input = (() => {
+        const radioBtns = Array.from(p1Modal.children[4].children[1].querySelectorAll('input'));
+        const uploadP2 = () => {
+            let name = p1Modal.children[4].children[0].children[2].value;
+            if (name == '') {
+                name = "Player Two";
+            }
+            p2Card.children[1].children[0].textContent = ` ${name}`;
+            let marker = {};
+            marker.value = p1Input.radioSelection(radioBtns);
+            if (marker.value > 0 && marker.value === game.p1.marker.value) {
+                alert('Cannot be the same as Player One!')
+            } else {
+                marker.src = radioBtns[marker.value].nextSibling.firstChild.src;
+                let labelLocation = p2Card.children[2];
+                p1Input.markerDisplay(labelLocation, marker);
+                game.p2 = playerFactory(name, "X", marker, 0);
+                p2Card.children[3].children[0].textContent = `${game.p2.wins}`;
+                return game.p2;
+            }   
+        }
+        const clearInput = () => {
+            p1Modal.children[4].children[0].children[2].value = "";
+            radioBtns[0].checked = true;
+        }
+    return { uploadP2, clearInput }
+    })();
+    const startListener = () => {
+        const startbtn = p1Modal.children[4].children[2].children[0];
+        const startFn = () => {
+            p1Input.uploadP1();
+            if (p2Input.uploadP2()) {
+                modalContainer.style.display = "none";
+                p1Input.clearInput();
+                p2Input.clearInput();
+                game.turnDisplay();
+            };
+        }
+        startbtn.addEventListener('click', startFn)
+    }
+    startListener();
+    const rematchListener = () => {
+        const rematchbtn = document.querySelector('input#rematch');
+        const rematchFn = () => {
+            grid.reset();
+            game.restart();
+            grid.create();
+            game.turnDisplay();
+            game.checkAI(game.p2);
+        }
+        rematchbtn.addEventListener('click', rematchFn);
+    }
+    rematchListener();
+    const restartListener = () => {
+        const restartbtn = document.querySelector('input#restart');
+        const restartFn = () => {
+            grid.reset();
+            game.restart();
+            grid.create();
+            modalContainer.style.display = "block";
             p1Input.clearInput();
             p2Input.clearInput();
-            game.turnDisplay();
-        };
+        }
+        restartbtn.addEventListener('click', restartFn);
     }
-    startbtn.addEventListener('click', startFn)
-}
-startListener();
-const rematchListener = () => {
-    const rematchbtn = document.querySelector('input#rematch');
-    const rematchFn = () => {
-        grid.reset();
-        game.restart();
-        grid.create();
-        game.turnDisplay();
-        game.checkAI(game.p2);
-    }
-    rematchbtn.addEventListener('click', rematchFn);
-}
-rematchListener();
-const restartListener = () => {
-    const restartbtn = document.querySelector('input#restart');
-    const restartFn = () => {
-        grid.reset();
-        game.restart();
-        grid.create();
-        modalContainer.style.display = "block";
-        p1Input.clearInput();
-        p2Input.clearInput();
-    }
-    restartbtn.addEventListener('click', restartFn);
-}
-restartListener();
+    restartListener();
+    return { p1Card, p2Card, scoreboard, p1Input }
+})();
