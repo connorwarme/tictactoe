@@ -391,7 +391,7 @@ const generateNumber = () => {
 //     //
 
 // }
-const board = [0, 1, 2, 3, 4, 5, 6, 7, 8];
+// const board = [0, 1, 2, 3, 4, 5, 6, 7, 8];
 // const terminalState = (gameBoard) => {
 //     let terminal = false;
 //     if (win.computer == 1) {
@@ -574,17 +574,22 @@ const grid = (() => {
             cellArray[i].textContent = `${input[i]}`;
         }
     }
-    const reset = () => {
+    const removeListeners = () => {
         cellArray = Array.from(gridContainer.querySelectorAll('div.cell'));
         cellArray.forEach(cell => {
             cell.removeEventListener('click', newClickFunction, { once: true })
         })
+    }
+    const reset = () => {
+        removeListeners();
+        let message = "";
+        game.winDisplay(message);
         while (gridContainer.firstChild) {
             gridContainer.removeChild(gridContainer.firstChild);
         }
     }
     create();
-    return { newClickFunction, displayBoard, reset, create };
+    return { newClickFunction, displayBoard, removeListeners, reset, create };
 })();
 // create players with factory function, return their name and marker
 const playerFactory = (name, icon, marker, wins) => {
@@ -595,6 +600,7 @@ const playerAI = playerFactory("AI", "X", 0);
 const game = (() => {
     let p1;
     let p2;
+    let board = [0, 1, 2, 3, 4, 5, 6, 7, 8]
     let circleTurn = false;
     // const currentClass = circleTurn ? playerH : playerAI;
     // turn for player (and for PvP)
@@ -605,11 +611,13 @@ const game = (() => {
     }
     const advancedMoveAI = () => {
         if (!circleTurn) {
-            if (checkPossibleMoves(board).length == 9) {
-                turn(0);
+            if (checkPossibleMoves(game.board).length == 9) {
+                let options = [0, 2, 6, 8];
+                let choice = Math.floor(Math.random()*4);
+                turn(options[choice]);
             } else {
                 console.log('fire');
-            turn(minimax(board, game.p2).index);
+            turn(minimax(game.board, game.p2).index);
             }
         }
     }
@@ -619,12 +627,11 @@ const game = (() => {
         if (check(input) == -1) {
             alert('Please choose an empty square!')
         } else {
-            board[input] = currentPlayer.icon;
+            game.board[input] = currentPlayer.icon;
             p1Input.markerDisplay(cellArray[input], currentPlayer.marker)
             console.log(currentPlayer.icon);
-            if (terminalState(board, currentPlayer)) {
-                // display endgame message
-                console.log('fire');
+            if (terminalState(game.board, currentPlayer)) {
+                grid.removeListeners();
             } else {
             alternateTurn();
             turnDisplay();
@@ -666,7 +673,7 @@ const game = (() => {
     // -> randomly generates index number to select move
     // -> returns index
     const randomMoveAI = () => {
-        let moves = checkPossibleMoves(board);
+        let moves = checkPossibleMoves(game.board);
         return moves[Math.floor(Math.random() * moves.length)];
     }
     // the minimax algorithm:
@@ -764,7 +771,7 @@ const game = (() => {
         })
     }
     const check = (id) => {
-        let moves = checkPossibleMoves(board);
+        let moves = checkPossibleMoves(game.board);
         if (moves[0] == id) {
             return id
         } else if (moves.find(index => index == id)) {
@@ -775,20 +782,23 @@ const game = (() => {
     }
     const restart = () => {
         for (i=0; i<9; i++) {
-            board[i] = i;
+            game.board[i] = i;
         }
         circleTurn = false;
     }
     const checkAI = (input) => {
         if (input.name === "Easy AI") {
-            basicMoveAI();
+            setTimeout(function() {
+                basicMoveAI()}, 1000);
         } else if (input.name === "Expert AI") {
-            advancedMoveAI();
+            setTimeout(function() {
+                advancedMoveAI()}, 1000);
         } else {
             return false;
         }
     }
     const turnDisplay = () => {
+        scoreboard[1].children[1].style.display = "grid";
         let turn = scoreboard[1].children[1].children[1];
         let reverseArrow = scoreboard[1].children[1].children[0];
         let arrow = scoreboard[1].children[1].children[2];
@@ -811,7 +821,7 @@ const game = (() => {
         winningContainer.children[0].textContent = `${input}`;
         
     }
-    return { turn, basicMoveAI, advancedMoveAI, restart, circleTurn, turnDisplay, p1, p2, winningArray, checkAI }
+    return { board, turn, basicMoveAI, advancedMoveAI, restart, circleTurn, turnDisplay, p1, p2, winningArray, checkAI, winDisplay }
 })();
 // modal (on initialization)
 // -> add name, choose icon, select game mode
@@ -838,12 +848,14 @@ const modalListener = () => {
     const easybtn = p1Modal.children[3].children[2];
     const easyFn = () => {
         p1Input.computer("Easy AI");
+        game.turnDisplay();
         game.checkAI(game.p2);
     }
     easybtn.addEventListener('click', easyFn);
     const expertbtn = p1Modal.children[3].children[3];
     const expertFn = () => {
         p1Input.computer("Expert AI");
+        game.turnDisplay();
         game.checkAI(game.p2);
     }
     expertbtn.addEventListener('click', expertFn);
@@ -937,9 +949,36 @@ const startListener = () => {
         p1Input.uploadP1();
         if (p2Input.uploadP2()) {
             modalContainer.style.display = "none";
+            p1Input.clearInput();
+            p2Input.clearInput();
             game.turnDisplay();
         };
     }
     startbtn.addEventListener('click', startFn)
 }
 startListener();
+const rematchListener = () => {
+    const rematchbtn = document.querySelector('input#rematch');
+    const rematchFn = () => {
+        grid.reset();
+        game.restart();
+        grid.create();
+        game.turnDisplay();
+        game.checkAI(game.p2);
+    }
+    rematchbtn.addEventListener('click', rematchFn);
+}
+rematchListener();
+const restartListener = () => {
+    const restartbtn = document.querySelector('input#restart');
+    const restartFn = () => {
+        grid.reset();
+        game.restart();
+        grid.create();
+        modalContainer.style.display = "block";
+        p1Input.clearInput();
+        p2Input.clearInput();
+    }
+    restartbtn.addEventListener('click', restartFn);
+}
+restartListener();
