@@ -241,6 +241,7 @@
     display: none;
     grid-row: 5/8;
     grid-template-rows: repeat(3, 1fr);
+    place-content: center;
     align-self: stretch;
 } 
 .p2name {

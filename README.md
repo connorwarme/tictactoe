@@ -4,7 +4,6 @@ project:
 -> allow for PvP or PvAI (easy or expert) game modes  
 -> use minimax algorithm to build unbeatable AI  
   
-  
 -- happy to hear feedback! --  
   
 happy with:  
@@ -14,4 +13,5 @@ happy with:
   
 improvement ideas:  
 -> alpha beta pruning. (wrestled with it for a long while but didn't figure it out)  
+-> cross-browser compatibility: designed it on Firefox, worked on some minor display issues for Chrome (it is still significantly more zoomed in on Chrome), but didn't check Safari or IE  
 -> refactor code? (I have yet to get much feedback on my code, so I'm unsure if there are abundant opportunities to condense the code or if I'm on the right track for a newbie)   
