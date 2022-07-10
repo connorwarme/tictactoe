@@ -384,7 +384,7 @@ const main = (() => {
                 // -> value property is index position in radioBtns array
                 // -> src property is img location
         const uploadP1 = () => {
-            let name = p1Modal.children[1].children[2].value;
+            let name = p1Modal.children[1].children[1].value;
             if (name == '') {
                 name = "Player One";
             }
@@ -400,7 +400,7 @@ const main = (() => {
         }
         // clear the modal inputs (name and marker)
         const clearInput = () => {
-            p1Modal.children[1].children[2].value = "";
+            p1Modal.children[1].children[1].value = "";
             radioBtns[0].checked = true;
         }
         // add computer player and update display accordingly
@@ -425,7 +425,7 @@ const main = (() => {
         // create player2 with modal name input, marker selection
         // check to make sure player2 doesn't select same marker as player1
         const uploadP2 = () => {
-            let name = p1Modal.children[4].children[0].children[2].value;
+            let name = p1Modal.children[4].children[0].children[1].value;
             if (name == '') {
                 name = "Player Two";
             }
@@ -445,7 +445,7 @@ const main = (() => {
         }
         // clear player2 inputs (name and marker) from modal
         const clearInput = () => {
-            p1Modal.children[4].children[0].children[2].value = "";
+            p1Modal.children[4].children[0].children[1].value = "";
             radioBtns[0].checked = true;
         }
     return { uploadP2, clearInput }

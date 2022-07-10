@@ -3,7 +3,7 @@
     min-width: 1350px;
 }
 .scoreboardContainer {
-    min-height: 210px;
+    min-height: 200px;
     display: grid;
     grid-template-columns: repeat(8, 1fr);
     background-color: rgb(202, 31, 31);
@@ -241,17 +241,21 @@
     display: none;
     grid-row: 5/8;
     grid-template-rows: repeat(3, 1fr);
-    place-content: center;
+    align-self: stretch;
 } 
 .p2name {
     grid-row: 1/2;
-    margin: 2% 0 2% 0;
-} .p2name > input {
+    margin: 2% 0 0 0;
+} 
+.p2name > input {
     margin-bottom: 8px;
 }
 .p2marker {
     grid-row: 2/3;
-    margin: 2% 0 3.5px 0;
+    margin: 1% 0 3.5px 0;
+}
+.p2markerText {
+    margin-bottom: 3.5px;
 }
 .startContainer {
     grid-row: 3/4;
@@ -264,7 +268,6 @@
     height: 50px;
     border: 2px solid black;
     border-radius: 15px;
-    margin: 4% 0 3% 0;
     background-color:  rgb(235, 235, 235);
     font-family: "Bangers";
     font-size: 24px;
