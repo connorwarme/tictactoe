@@ -409,7 +409,7 @@ const main = (() => {
             let name = input;
             let marker = {
                 value: "0",
-                src: "file:///home/peregrinning/Documents/Coding/TOP/tictactoe/img/alpha-x.png"
+                src: "https://connorwarme.github.io/tictactoe/img/alpha-x.png"
             }
             game.p2 = playerFactory(name, "X", marker, 0);
             p2Card.children[1].children[0].textContent = ` ${name}`;
